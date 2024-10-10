@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "cli chess"
+version = "1.0.0"
+description = ""
+authors = ["BRANYA43 <tbd2504@gmai.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+textual = "^0.82.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pre-commit = "^4.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 120
+force-exclude = true
+extend-exclude = ['migrations']
+extend-select = ['T20']
+
+
+[tool.ruff.format]
+quote-style = "single"
+
+
+[tool.mypy]
+ignore_missing_imports = true
