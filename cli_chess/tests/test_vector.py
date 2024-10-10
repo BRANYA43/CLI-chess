@@ -50,3 +50,8 @@ class TestVector:
 
         assert (main == equal) is True
         assert (main == not_equal) is False
+
+    def test_abs_return_all_positive_integer(self):
+        for coords in [(0, 0), (1, 1), (-1, 1), (-1, -1)]:
+            vector = Vector(*coords)
+            assert abs(vector) == abs(vector.x) + abs(vector.y)

@@ -26,5 +26,8 @@ class Vector:
     def __iter__(self):
         return iter((self._x, self._y))
 
+    def __abs__(self):
+        return abs(self._x) + abs(self._y)
+
     def __eq__(self, other):
         return self._x == other.x and self._y == other.y
