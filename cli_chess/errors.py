@@ -9,3 +9,7 @@ class CustomError(Exception):
     def __init__(self, msg: Optional[str] = None):
         message = self.default_msg if msg is None else msg
         super().__init__(message)
+
+
+class PieceError(CustomError):
+    pass
