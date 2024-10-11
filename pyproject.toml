@@ -26,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 line-length = 120
 force-exclude = true
 extend-exclude = ['migrations']
-extend-select = ['T20']
+lint.extend-select = ['T20']
 
 
 [tool.ruff.format]
