@@ -54,3 +54,13 @@ class TestDirectionEnum:
         }
         for direction, vector in directions_vectors.items():
             assert direction.vector == vector
+
+    def test_str(self):
+        assert str(Direction.UP) == 'UP'
+        assert str(Direction.DOWN) == 'DOWN'
+        assert str(Direction.LEFT) == 'LEFT'
+        assert str(Direction.RIGHT) == 'RIGHT'
+        assert str(Direction.UP_LEFT) == 'UP LEFT'
+        assert str(Direction.UP_RIGHT) == 'UP RIGHT'
+        assert str(Direction.DOWN_LEFT) == 'DOWN LEFT'
+        assert str(Direction.DOWN_RIGHT) == 'DOWN RIGHT'

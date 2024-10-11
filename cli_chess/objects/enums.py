@@ -22,6 +22,9 @@ class Direction(IntEnum):
     DOWN_LEFT = 6
     DOWN_RIGHT = 7
 
+    def __str__(self):
+        return self.name.replace('_', ' ')
+
     @classmethod
     def get_direct_directions(cls) -> tuple['Direction', 'Direction', 'Direction', 'Direction']:
         return Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT
