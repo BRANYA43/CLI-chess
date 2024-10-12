@@ -21,6 +21,9 @@ class Position:
     def y(self) -> int:
         return self._y
 
+    def __str__(self):
+        return f'x:{self._x}, y:{self._y}'
+
     def __hash__(self):
         return hash((self._x, self._y))
 
