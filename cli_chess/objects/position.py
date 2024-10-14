@@ -47,6 +47,22 @@ class Position:
         self.__valid_position(other)
         return self._x != other.x or self._y != other.y
 
+    def __gt__(self, other):
+        self.__valid_position(other)
+        return self._y > other.y or (self._y == other.y and self._x > other.x)
+
+    def __ge__(self, other):
+        self.__valid_position(other)
+        return self > other or self == other
+
+    def __lt__(self, other):
+        self.__valid_position(other)
+        return self._y < other.y or (self._y == other.y and self._x < other.x)
+
+    def __le__(self, other):
+        self.__valid_position(other)
+        return self < other or self == other
+
     def get_direction(self, pos: 'Position') -> Direction:
         """
         Return vector direction between two positions.

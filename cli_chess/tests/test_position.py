@@ -95,6 +95,118 @@ class TestPosition:
         with raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos != invalid_operand
 
+    def test_greate_than_comparing(self):
+        main = Position(1, 3)
+
+        # main greate than (True)
+        x_equal_y_less = Position(1, 2)
+        x_greate_y_less = Position(2, 2)
+        x_y_less = Position(0, 2)
+        x_less_y_equal = Position(0, 3)
+
+        for pos in (x_equal_y_less, x_greate_y_less, x_y_less, x_less_y_equal):
+            assert (main > pos) is True
+
+        # main less than (False)
+        x_y_equal = main
+        x_equal_y_greate = Position(1, 4)
+        x_y_greate = Position(2, 4)
+        x_greate_y_equal = Position(2, 3)
+        x_less_y_greate = Position(0, 4)
+
+        for pos in (x_y_equal, x_equal_y_greate, x_y_greate, x_greate_y_equal, x_less_y_greate):
+            assert (main > pos) is False
+
+    def test_greate_than_comparing_raises_error_if_second_operand_isnt_position(self):
+        pos = Position(1, 3)
+        invalid_operand = (1, 2)
+        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+            pos > invalid_operand
+
+    def test_greate_than_or_equal_comparing(self):
+        main = Position(1, 3)
+
+        # main greate than or equal (True)
+        x_y_equal = main
+        x_equal_y_less = Position(1, 2)
+        x_greate_y_less = Position(2, 2)
+        x_y_less = Position(0, 2)
+        x_less_y_equal = Position(0, 3)
+
+        for pos in (x_y_equal, x_equal_y_less, x_greate_y_less, x_y_less, x_less_y_equal):
+            assert (main >= pos) is True
+
+        # main less than (False)
+        x_equal_y_greate = Position(1, 4)
+        x_y_greate = Position(2, 4)
+        x_greate_y_equal = Position(2, 3)
+        x_less_y_greate = Position(0, 4)
+
+        for pos in (x_equal_y_greate, x_y_greate, x_greate_y_equal, x_less_y_greate):
+            assert (main >= pos) is False
+
+    def test_greate_than_or_equal_comparing_raises_error_if_second_operand_isnt_position(self):
+        pos = Position(1, 3)
+        invalid_operand = (1, 2)
+        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+            pos >= invalid_operand
+
+    def test_less_than_comparing(self):
+        main = Position(1, 3)
+
+        # main less than (True)
+        x_equal_y_greate = Position(1, 4)
+        x_y_greate = Position(2, 4)
+        x_greate_y_equal = Position(2, 3)
+        x_less_y_greate = Position(0, 4)
+
+        for pos in (x_equal_y_greate, x_y_greate, x_greate_y_equal, x_less_y_greate):
+            assert (main < pos) is True
+
+        # main greate than (False)
+        x_y_equal = main
+        x_equal_y_less = Position(1, 2)
+        x_greate_y_less = Position(2, 2)
+        x_y_less = Position(0, 2)
+        x_less_y_equal = Position(0, 3)
+
+        for pos in (x_y_equal, x_equal_y_less, x_greate_y_less, x_y_less, x_less_y_equal):
+            assert (main < pos) is False
+
+    def test_less_than_comparing_raises_error_if_second_operand_isnt_position(self):
+        pos = Position(1, 3)
+        invalid_operand = (1, 2)
+        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+            pos < invalid_operand
+
+    def test_less_than_ot_equal_comparing(self):
+        main = Position(1, 3)
+
+        # main less than (True)
+        x_y_equal = main
+        x_equal_y_greate = Position(1, 4)
+        x_y_greate = Position(2, 4)
+        x_greate_y_equal = Position(2, 3)
+        x_less_y_greate = Position(0, 4)
+
+        for pos in (x_y_equal, x_equal_y_greate, x_y_greate, x_greate_y_equal, x_less_y_greate):
+            assert (main <= pos) is True
+
+        # main greate than (False)
+        x_equal_y_less = Position(1, 2)
+        x_greate_y_less = Position(2, 2)
+        x_y_less = Position(0, 2)
+        x_less_y_equal = Position(0, 3)
+
+        for pos in (x_equal_y_less, x_greate_y_less, x_y_less, x_less_y_equal):
+            assert (main <= pos) is False
+
+    def test_less_than_ot_equal_comparing_if_second_operand_isnt_position(self):
+        pos = Position(1, 3)
+        invalid_operand = (1, 2)
+        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+            pos <= invalid_operand
+
     def test_position_gets_correct_direction(self):
         """
            0    1    2   3    4
