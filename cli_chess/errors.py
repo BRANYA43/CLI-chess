@@ -13,3 +13,7 @@ class CustomError(Exception):
 
 class PieceError(CustomError):
     pass
+
+
+class BoardError(CustomError):
+    pass
