@@ -1,5 +1,6 @@
 from pytest import fixture
 
+from objects.board import Board
 from objects.enums import Color, Direction
 from objects.pieces import Piece
 
@@ -42,3 +43,11 @@ def b_god_piece(b_piece) -> Piece:
     """
     __make_god_piece(b_piece)
     return b_piece
+
+
+@fixture
+def board() -> Board:
+    """
+    Board
+    """
+    return Board()
