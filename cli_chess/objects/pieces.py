@@ -71,6 +71,16 @@ class Piece:
 
         return True
 
+    def check_attack(self, attacked_piece: 'Piece', *, raise_exception=False) -> bool:
+        """
+        Checks whether the chess piece attack the ally chess piece.
+        """
+        if self.is_ally_for(attacked_piece):
+            if raise_exception:
+                raise PieceError('Ally pieces cannot attacked each other.')
+            return False
+        return True
+
     def check_move_in_direction(self, direction: Direction, *, raise_exception=False, **kwargs) -> bool:
         """
         Checks whether the chess piece can move in a direction.

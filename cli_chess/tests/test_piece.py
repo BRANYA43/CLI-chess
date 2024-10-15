@@ -62,6 +62,14 @@ class TestPiece:
         with raises(PieceError, match=r'Piece cannot move 0 squares.'):
             w_piece.check_move_distance(0, raise_exception=True)
 
+    def test_checking_attack_returns_true_if_piece_attack_no_ally_pieces(self, w_piece, b_piece):
+        assert w_piece.check_attack(b_piece) is True
+
+    def test_checking_attack_returns_false_if_piece_attacks_ally_piece(self, w_piece):
+        assert w_piece.check_attack(w_piece) is False
+        with raises(PieceError, match=r'Ally pieces cannot attacked each other.'):
+            w_piece.check_attack(w_piece, raise_exception=True)
+
     def test_piece_check_get_to_at_end_position(self, w_god_piece, board):
         """
            0   1   2   3   4
