@@ -402,3 +402,19 @@ class TestPosition:
                 'equal to 0, 90, 180 degrees.',
             ):
                 list(start.get_range_between(end))
+
+    def test_getting_range_between_two_positions_returns_no_positions_if_end_position_is_neighbor_of_start(self):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [E] [E] [E] [ ]
+        2 [ ] [E] [S] [E] [ ]
+        3 [ ] [E] [E] [E] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        ends = [(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+
+        for coords in ends:
+            end = Position(*coords)
+            assert list(start.get_range_between(end)) == []
