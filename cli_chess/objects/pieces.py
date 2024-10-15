@@ -1,8 +1,10 @@
+from collections import deque
 from typing import Optional
 
 from errors import PieceError
 from objects.enums import Color, Direction
 from objects.position import Position
+from functools import partial
 
 
 class Piece:
@@ -48,25 +50,21 @@ class Piece:
         Checks whether the chess piece moves from the start position to the end position.
         :keyword diagonal_direction: if True then it considers diagonal directions (e.g. Bishop, Queen).
         """
-        if attacked_piece is not None:
-            valid_attack = self.check_attack(attacked_piece, raise_exception=raise_exception)
-            if not valid_attack:
-                return False
-
         direction = start.get_direction(end)
-        can_move_to_direction = self.check_move_in_direction(direction, raise_exception=raise_exception, **kwargs)
-        if not can_move_to_direction:
-            return False
-
         distance = start.get_distance(end, diagonal_direction=kwargs.pop('diagonal_direction', True))
-        can_move_distance = self.check_move_distance(distance, raise_exception=raise_exception, **kwargs)
-        if not can_move_distance:
-            return False
+        check_methods = deque(
+            [
+                partial(self.check_move_in_direction, direction, raise_exception=raise_exception, **kwargs),
+                partial(self.check_move_distance, distance, raise_exception=raise_exception, **kwargs),
+                partial(self.check_get_to_end_position, start, end, board, raise_exception=raise_exception, **kwargs),
+            ]
+        )
+        if attacked_piece is not None:
+            check_methods.appendleft(partial(self.check_attack, attacked_piece, raise_exception=raise_exception))
 
-        can_get = self.check_get_to_end_position(start, end, board, raise_exception=raise_exception, **kwargs)
-        if not can_get:
-            return False
-
+        for check in check_methods:
+            if not check():
+                return False
         return True
 
     def check_attack(self, attacked_piece: 'Piece', *, raise_exception=False) -> bool:
