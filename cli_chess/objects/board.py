@@ -87,7 +87,7 @@ class Board:
         else:
             attacked_piece = None
 
-        moving_piece.check(start, end, attacked_piece)
+        moving_piece.check(start, end, self, attacked_piece)
 
         if attacked_piece is not None:
             self.remove_piece(attacked_piece, end)

@@ -32,6 +32,7 @@ class Piece:
         self,
         start: Position,
         end: Position,
+        board,
         attacked_piece: Optional['Piece'] = None,
         *,
         raise_exception=True,
@@ -41,7 +42,6 @@ class Piece:
         Checks whether the chess piece moves from the start position to the end position.
         :keyword diagonal_direction: if True then it considers diagonal directions (e.g. Bishop, Queen).
         """
-
         if attacked_piece is not None:
             is_ally = self.is_ally_for(attacked_piece)
             if is_ally and raise_exception:
@@ -59,8 +59,8 @@ class Piece:
         if not can_move_distance:
             return False
 
-        can_move_through = self.can_move_through_another_piece(raise_exception=raise_exception, **kwargs)
-        if not can_move_through:
+        can_get = self.can_get_to_end_position(start, end, board, raise_exception=raise_exception, **kwargs)
+        if not can_get:
             return False
 
         return True
@@ -74,14 +74,20 @@ class Piece:
             raise PieceError(f'{self.name} cannot move in the {direction} direction.')
         return result
 
-    def can_move_through_another_piece(self, *, raise_exception=False, **kwargs) -> bool:
+    def can_get_to_end_position(
+        self, start: Position, end: Position, board, *, raise_exception=False, **kwargs
+    ) -> bool:
         """
-        Returns True if the chess piece can move through another chess piece else False.
+        Returns True if the chess piece can get from the start to the end position else False.
         """
-        result = self.CAN_MOVE_OR_ATTACK_THROUGH
-        if raise_exception and not result:
-            raise PieceError(f'{self.name} cannot move through another chess piece.')
-        return result
+        if self.CAN_MOVE_OR_ATTACK_THROUGH:
+            return True
+        for next_pos in start.get_range_between(end):
+            if board.has_piece_at_position(next_pos):
+                if raise_exception:
+                    raise PieceError(f'{self.name} cannot move through another chess piece.')
+                return False
+        return True
 
     def can_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:
         """
