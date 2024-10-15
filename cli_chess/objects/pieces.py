@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Optional
+from typing import Optional, override
 
 from errors import PieceError
 from objects.enums import Color, Direction
@@ -116,6 +116,60 @@ class Piece:
         if raise_exception and not result:
             raise PieceError(f'{self.name} cannot move {distance} squares.')
         return result
+
+
+class Pawn(Piece):
+    MAX_MOVE_COUNT = 1
+
+    def __init__(self, color: Color):
+        super().__init__(color)
+        self._moved = False
+
+        if self.color == Color.WHITE:
+            self.ALLOWED_MOVE_DIRECTIONS = frozenset([Direction.DOWN, Direction.DOWN_LEFT, Direction.DOWN_RIGHT])
+        else:
+            self.ALLOWED_MOVE_DIRECTIONS = frozenset([Direction.UP, Direction.UP_LEFT, Direction.UP_RIGHT])
+
+    def is_moved(self) -> bool:
+        return self._moved
+
+    def do_first_move(self):
+        self._moved = True
+
+    @override
+    def check_move_in_direction(
+        self, direction: Direction, *, raise_exception=False, is_attack=False, **kwargs
+    ) -> bool:
+        result = super().check_move_in_direction(direction, raise_exception=raise_exception, **kwargs)
+        if direction in Direction.get_diagonal_directions():
+            result = is_attack and result
+        else:
+            result = not is_attack and result
+
+        if not result and raise_exception:
+            raise PieceError(f'{self.name} cannot move in the {direction} direction.')
+        return result
+
+    @override
+    def check_move_distance(self, distance: int, *, raise_exception=False, is_attack=False, **kwargs) -> bool:
+        if not is_attack and not self._moved and distance <= 2:
+            return True
+        return super().check_move_distance(distance, raise_exception=raise_exception, **kwargs)
+
+    @override
+    def check(
+        self,
+        start: Position,
+        end: Position,
+        board,
+        attacked_piece: Optional['Piece'] = None,
+        *,
+        raise_exception=True,
+        **kwargs,
+    ) -> bool:
+        return super().check(
+            start, end, board, attacked_piece, raise_exception=raise_exception, is_attack=bool(attacked_piece), **kwargs
+        )
 
 
 class Rook(Piece):
