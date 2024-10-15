@@ -88,11 +88,18 @@ class Piece:
         """
         if self.CAN_MOVE_OR_ATTACK_THROUGH:
             return True
-        for next_pos in start.get_range_between(end):
-            if board.has_piece_at_position(next_pos):
-                if raise_exception:
-                    raise PieceError(f'{self.name} cannot move through another chess piece.')
-                return False
+
+        try:
+            for next_pos in start.get_range_between(end):
+                if board.has_piece_at_position(next_pos):
+                    if raise_exception:
+                        raise PieceError(f'{self.name} cannot move through another chess piece.')
+                    return False
+        except ValueError:
+            if raise_exception:
+                raise PieceError(f'{self.name} cannot get from start({start}) to end({end}) position.')
+            return False
+
         return True
 
     def can_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:

@@ -71,6 +71,7 @@ class TestPiece:
         3 [ ] [x] [x] [x] [ ]
         4 [x] [ ] [x] [ ] [x]
         """
+        w_god_piece.CAN_MOVE_OR_ATTACK_THROUGH = False
         coords = [
             (0, 0),
             (2, 0),
@@ -91,6 +92,30 @@ class TestPiece:
         ]
         start = Position(2, 2)
         board.add_piece(w_god_piece, start)
+        for x, y in coords:
+            end = Position(x, y)
+            assert w_god_piece.can_get_to_end_position(start, end, board) is True
+
+    def test_piece_can_get_to_end_position_if_there_is_another_piece_on_way_and_it_can_move_through_another_piece(
+        self, board, w_piece, w_god_piece
+    ):
+        """
+           0   1   2   3   4
+        0 [x] [ ] [x] [ ] [x]
+        1 [ ] [p] [p] [p] [ ]
+        2 [x] [p] [#] [p] [x]
+        3 [ ] [p] [p] [p] [ ]
+        4 [x] [ ] [x] [ ] [x]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_god_piece, start)
+
+        blocking_piece_coords = [(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+        for x, y in blocking_piece_coords:
+            pos = Position(x, y)
+            board.add_piece(w_piece, pos)
+
+        coords = [(0, 0), (2, 0), (4, 0), (0, 2), (4, 2), (0, 4), (2, 4), (4, 4)]
         for x, y in coords:
             end = Position(x, y)
             assert w_god_piece.can_get_to_end_position(start, end, board) is True
@@ -118,24 +143,23 @@ class TestPiece:
         for x, y in coords:
             end = Position(x, y)
             assert w_god_piece.can_get_to_end_position(start, end, board) is False
+            with raises(PieceError, match=r'Piece cannot move through another chess piece.'):
+                w_god_piece.can_get_to_end_position(start, end, board, raise_exception=True)
 
-    def test_can_get_to_end_position_method_raises_error_if_raise_exception_is_true(self, board, w_piece, w_god_piece):
+    def test_piece_cant_get_to_end_position_if_start_and_end_arent_on_the_same_straight_line(self, board, w_god_piece):
         """
            0   1   2   3   4
-        0 [#] [p] [x] [ ] [ ]
-        1 [ ] [ ] [ ] [ ] [ ]
+        0 [#] [ ] [ ] [ ] [ ]
+        1 [ ] [ ] [ ] [ ] [x]
         2 [ ] [ ] [ ] [ ] [ ]
         3 [ ] [ ] [ ] [ ] [ ]
         4 [ ] [ ] [ ] [ ] [ ]
         """
         w_god_piece.CAN_MOVE_OR_ATTACK_THROUGH = False
-
         start = Position(0, 0)
-        end = Position(2, 0)
-        board.add_piece(w_god_piece, start)
-        board.add_piece(w_piece, Position(1, 0))
-
-        with raises(PieceError, match=r'Piece cannot move through another chess piece.'):
+        end = Position(4, 1)
+        assert w_god_piece.can_get_to_end_position(start, end, board) is False
+        with raises(PieceError, match=r'Piece cannot get from start\(x:0, y:0\) to end\(x:4, y:1\) position.'):
             w_god_piece.can_get_to_end_position(start, end, board, raise_exception=True)
 
     def test_check_method_returns_true_without_attacked_piece(self, w_god_piece, board):
