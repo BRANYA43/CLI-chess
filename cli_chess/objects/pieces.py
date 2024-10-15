@@ -56,35 +56,35 @@ class Piece:
                 return False
 
         direction = start.get_direction(end)
-        can_move_to_direction = self.can_move_in_direction(direction, raise_exception=raise_exception, **kwargs)
+        can_move_to_direction = self.check_move_in_direction(direction, raise_exception=raise_exception, **kwargs)
         if not can_move_to_direction:
             return False
 
         distance = start.get_distance(end, diagonal_direction=kwargs.pop('diagonal_direction', True))
-        can_move_distance = self.can_move_distance(distance, raise_exception=raise_exception, **kwargs)
+        can_move_distance = self.check_move_distance(distance, raise_exception=raise_exception, **kwargs)
         if not can_move_distance:
             return False
 
-        can_get = self.can_get_to_end_position(start, end, board, raise_exception=raise_exception, **kwargs)
+        can_get = self.check_get_to_end_position(start, end, board, raise_exception=raise_exception, **kwargs)
         if not can_get:
             return False
 
         return True
 
-    def can_move_in_direction(self, direction: Direction, *, raise_exception=False, **kwargs) -> bool:
+    def check_move_in_direction(self, direction: Direction, *, raise_exception=False, **kwargs) -> bool:
         """
-        Returns True if the chess piece can move in a direction else False.
+        Checks whether the chess piece can move in a direction.
         """
         result = direction in self.ALLOWED_MOVE_DIRECTIONS
         if raise_exception and not result:
             raise PieceError(f'{self.name} cannot move in the {direction} direction.')
         return result
 
-    def can_get_to_end_position(
+    def check_get_to_end_position(
         self, start: Position, end: Position, board, *, raise_exception=False, **kwargs
     ) -> bool:
         """
-        Returns True if the chess piece can get from the start to the end position else False.
+        Checks whether the chess piece can get from the start to the end position.
         """
         if self.CAN_MOVE_OR_ATTACK_THROUGH:
             return True
@@ -102,9 +102,9 @@ class Piece:
 
         return True
 
-    def can_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:
+    def check_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:
         """
-        Returns True if the chess piece can move the distance of squares else False.
+        Checks whether the chess piece can move the distance of squares.
         """
         result = 1 <= distance <= self.MAX_MOVE_COUNT
         if raise_exception and not result:
