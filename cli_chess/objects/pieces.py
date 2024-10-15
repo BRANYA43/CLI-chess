@@ -103,3 +103,9 @@ class Piece:
         if raise_exception and not result:
             raise PieceError(f'{self.name} cannot move {distance} squares.')
         return result
+
+
+class Queen(Piece):
+    ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction)
+
+    MAX_MOVE_COUNT = 8

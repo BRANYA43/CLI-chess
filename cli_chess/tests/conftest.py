@@ -2,7 +2,7 @@ from pytest import fixture
 
 from objects.board import Board
 from objects.enums import Color, Direction
-from objects.pieces import Piece
+from objects.pieces import Piece, Queen
 
 
 def __make_god_piece(piece: Piece):
@@ -43,6 +43,22 @@ def b_god_piece(b_piece) -> Piece:
     """
     __make_god_piece(b_piece)
     return b_piece
+
+
+@fixture
+def w_queen() -> Queen:
+    """
+    White Queen
+    """
+    return Queen(Color.WHITE)
+
+
+@fixture
+def b_queen() -> Queen:
+    """
+    Black Queen
+    """
+    return Queen(Color.BLACK)
 
 
 @fixture
