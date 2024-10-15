@@ -28,7 +28,7 @@ class Position:
         return hash((self._x, self._y))
 
     def __repr__(self):
-        return f'Position({self._x}, {self._y})'
+        return f'<Position(x:{self._x}, y:{self._y})>'
 
     def __add__(self, other) -> 'Position':
         if isinstance(other, Vector):

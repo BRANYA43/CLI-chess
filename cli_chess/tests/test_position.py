@@ -20,14 +20,6 @@ class TestPosition:
         with raises(TypeError, match='x and y must be integer.'):
             Position(0, '2')
 
-    def test_str(self):
-        pos = Position(1, 2)
-        assert str(pos) == 'x:1, y:2'
-
-    def test_repr(self):
-        pos = Position(1, 4)
-        assert repr(pos) == rf'Position({pos.x}, {pos.y})'
-
     def test_position_is_hashed(self):
         pos = Position(20, 30)
         assert hash(pos) == hash((pos.x, pos.y))

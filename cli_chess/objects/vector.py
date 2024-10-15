@@ -13,6 +13,9 @@ class Vector:
     def y(self) -> int:
         return self._y
 
+    def __repr__(self):
+        return f'<Vector(x:{self._x}, y:{self._x})>'
+
     def __iter__(self):
         return iter((self._x, self._y))
 

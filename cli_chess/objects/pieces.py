@@ -17,6 +17,12 @@ class Piece:
     def __init__(self, color: int):
         self._color = Color(color)
 
+    def __str__(self):
+        return f'{self.color.name.title()} {self.name}'
+
+    def __repr__(self):
+        return f'<Piece(id:{id(self)}, color:{self.color}>'
+
     @property
     def color(self) -> Color:
         return self._color
