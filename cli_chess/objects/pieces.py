@@ -49,10 +49,8 @@ class Piece:
         :keyword diagonal_direction: if True then it considers diagonal directions (e.g. Bishop, Queen).
         """
         if attacked_piece is not None:
-            is_ally = self.is_ally_for(attacked_piece)
-            if is_ally and raise_exception:
-                raise PieceError('Ally pieces cannot attacked each other.')
-            elif is_ally:
+            valid_attack = self.check_attack(attacked_piece, raise_exception=raise_exception)
+            if not valid_attack:
                 return False
 
         direction = start.get_direction(end)

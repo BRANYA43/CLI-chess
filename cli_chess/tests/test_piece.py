@@ -213,10 +213,12 @@ class TestPiece:
     @patch.object(Piece, 'check_get_to_end_position')
     @patch.object(Piece, 'check_move_distance')
     @patch.object(Piece, 'check_move_in_direction')
+    @patch.object(Piece, 'check_attack', return_value=False)
     def test_check_method_doesnt_continue_call_other_method_if_attacked_piece_is_ally(
-        self, mock_direction, mock_distance, mock_get, w_piece, board
+        self, mock_attack, mock_direction, mock_distance, mock_get, w_piece, board
     ):
         """
+        Piece.check_attack - returns False.
         Piece.check_move_in_direction - wasn't called.
         Piece.check_move_distance - wasn't called.
         Piece.check_move_through_another_piece - wasn't called.
@@ -226,6 +228,7 @@ class TestPiece:
 
         assert w_piece.check(start, end, board, w_piece, raise_exception=False) is False
 
+        mock_attack.assert_called()
         mock_direction.assert_not_called()
         mock_distance.assert_not_called()
         mock_get.assert_not_called()
@@ -233,10 +236,12 @@ class TestPiece:
     @patch.object(Piece, 'check_get_to_end_position')
     @patch.object(Piece, 'check_move_distance')
     @patch.object(Piece, 'check_move_in_direction', return_value=False)
-    def test_check_method_doesnt_continue_call_other_method_if_first_returns_false(
-        self, mock_direction, mock_distance, mock_got, w_piece, board
+    @patch.object(Piece, 'check_attack')
+    def test_check_method_doesnt_continue_call_other_method_if_invalid_direction(
+        self, mock_attack, mock_direction, mock_distance, mock_got, w_piece, board
     ):
         """
+        Piece.check_attack - wasn't called.
         Piece.check_move_in_direction - returned False.
         Piece.check_move_distance - wasn't called.
         Piece.check_move_through_another_piece - wasn't called.
@@ -246,6 +251,7 @@ class TestPiece:
 
         assert w_piece.check(start, end, board) is False
 
+        mock_attack.assert_not_called()
         mock_direction.assert_called()
         mock_distance.assert_not_called()
         mock_got.assert_not_called()
@@ -253,10 +259,12 @@ class TestPiece:
     @patch.object(Piece, 'check_get_to_end_position')
     @patch.object(Piece, 'check_move_distance', return_value=False)
     @patch.object(Piece, 'check_move_in_direction', return_value=True)
-    def test_check_method_doesnt_continue_call_other_method_if_second_returns_false(
-        self, mock_direction, mock_distance, mock_got, w_piece, board
+    @patch.object(Piece, 'check_attack')
+    def test_check_method_doesnt_continue_call_other_method_if_invalid_distance(
+        self, mock_attack, mock_direction, mock_distance, mock_got, w_piece, board
     ):
         """
+        Piece.check_attack - wasn't called.
         Piece.check_move_in_direction - returned True.
         Piece.check_move_distance - returned False.
         Piece.check_move_through_another_piece - wasn't called.
@@ -266,6 +274,7 @@ class TestPiece:
 
         assert w_piece.check(start, end, board) is False
 
+        mock_attack.assert_not_called()
         mock_direction.assert_called()
         mock_distance.assert_called()
         mock_got.assert_not_called()
@@ -273,10 +282,12 @@ class TestPiece:
     @patch.object(Piece, 'check_get_to_end_position', return_value=False)
     @patch.object(Piece, 'check_move_distance', return_value=True)
     @patch.object(Piece, 'check_move_in_direction', return_value=True)
-    def test_check_method_doesnt_continue_call_other_method_if_the_last_returns_false(
-        self, mock_direction, mock_distance, mock_got, w_piece, board
+    @patch.object(Piece, 'check_attack')
+    def test_check_method_doesnt_continue_call_other_method_if_piece_cannot_get_to_end_position(
+        self, mock_attack, mock_direction, mock_distance, mock_got, w_piece, board
     ):
         """
+        Piece.check_attack - wasn't called.
         Piece.check_move_in_direction - returned True.
         Piece.check_move_distance - returned True.
         Piece.check_move_through_another_piece - returned False.
@@ -286,6 +297,7 @@ class TestPiece:
 
         assert w_piece.check(start, end, board) is False
 
+        mock_attack.assert_not_called()
         mock_direction.assert_called()
         mock_distance.assert_called()
         mock_got.assert_called()
