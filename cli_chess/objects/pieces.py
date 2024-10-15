@@ -105,6 +105,12 @@ class Piece:
         return result
 
 
+class Rook(Piece):
+    ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction.get_direct_directions())
+
+    MAX_MOVE_COUNT = 8
+
+
 class Bishop(Piece):
     ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction.get_diagonal_directions())
 
