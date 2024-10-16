@@ -15,7 +15,6 @@ class TestPawn:
     def test_pawn_constance(self):
         assert Pawn.ALLOWED_MOVE_DIRECTIONS == frozenset()
         assert Pawn.MAX_MOVE_COUNT == 1
-        assert Pawn.CAN_MOVE_OR_ATTACK_THROUGH is False
 
     def test_creating_pawn(self):
         w_pawn = Pawn(Color.WHITE)

@@ -28,7 +28,6 @@ class TestPiece:
     def test_class_constants(self):
         assert Piece.ALLOWED_MOVE_DIRECTIONS == frozenset()
         assert Piece.MAX_MOVE_COUNT == 0
-        assert Piece.CAN_MOVE_OR_ATTACK_THROUGH is False
 
     def test_piece_is_ally_for_another_piece(self, w_piece):
         assert w_piece.is_ally_for(w_piece) is True
@@ -100,30 +99,6 @@ class TestPiece:
         ]
         start = Position(2, 2)
         board.add_piece(w_god_piece, start)
-        for x, y in coords:
-            end = Position(x, y)
-            assert w_god_piece.check_get_to_end_position(start, end, board) is True
-
-    def test_piece_check_get_to_end_position_if_there_is_another_piece_on_way_and_it_check_move_through_another_piece(
-        self, board, w_piece, w_god_piece
-    ):
-        """
-           0   1   2   3   4
-        0 [x] [ ] [x] [ ] [x]
-        1 [ ] [p] [p] [p] [ ]
-        2 [x] [p] [#] [p] [x]
-        3 [ ] [p] [p] [p] [ ]
-        4 [x] [ ] [x] [ ] [x]
-        """
-        start = Position(2, 2)
-        board.add_piece(w_god_piece, start)
-
-        blocking_piece_coords = [(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
-        for x, y in blocking_piece_coords:
-            pos = Position(x, y)
-            board.add_piece(w_piece, pos)
-
-        coords = [(0, 0), (2, 0), (4, 0), (0, 2), (4, 2), (0, 4), (2, 4), (4, 4)]
         for x, y in coords:
             end = Position(x, y)
             assert w_god_piece.check_get_to_end_position(start, end, board) is True

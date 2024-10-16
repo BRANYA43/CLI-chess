@@ -14,8 +14,6 @@ class Piece:
 
     MAX_MOVE_COUNT = 0
 
-    CAN_MOVE_OR_ATTACK_THROUGH = False
-
     def __init__(self, color: int):
         self._color = Color(color)
 
@@ -92,9 +90,6 @@ class Piece:
         """
         Checks whether the chess piece can get from the start to the end position.
         """
-        if self.CAN_MOVE_OR_ATTACK_THROUGH:
-            return True
-
         try:
             for next_pos in start.get_range_between(end):
                 if board.has_piece_at_position(next_pos):

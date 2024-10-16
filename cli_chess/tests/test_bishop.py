@@ -9,4 +9,3 @@ class TestBishop:
     def test_bishop_class_constance(self):
         assert Bishop.ALLOWED_MOVE_DIRECTIONS == frozenset(Direction.get_diagonal_directions())
         assert Bishop.MAX_MOVE_COUNT == 8
-        assert Bishop.CAN_MOVE_OR_ATTACK_THROUGH is False

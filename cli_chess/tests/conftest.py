@@ -8,7 +8,6 @@ from objects.pieces import Piece, Queen, Bishop, Rook, Pawn
 def __make_god_piece(piece: Piece):
     piece.ALLOWED_MOVE_DIRECTIONS = frozenset(Direction)
     piece.MAX_MOVE_COUNT = 8
-    piece.CAN_MOVE_OR_ATTACK_THROUGH = True
 
 
 @fixture
