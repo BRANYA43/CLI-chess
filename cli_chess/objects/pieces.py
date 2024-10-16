@@ -6,6 +6,8 @@ from objects.enums import Color, Direction
 from objects.position import Position
 from functools import partial
 
+from objects.vector import Vector
+
 
 class Piece:
     """Base class of all chess pieces"""
@@ -174,6 +176,48 @@ class Rook(Piece):
     ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction.get_direct_directions())
 
     MAX_MOVE_COUNT = 8
+
+
+class Knight(Piece):
+    ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction.get_diagonal_directions())
+
+    MAX_MOVE_COUNT = 3
+
+    @override
+    def check_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:
+        result = distance == self.MAX_MOVE_COUNT
+        if raise_exception and not result:
+            raise PieceError(f'{self.name} cannot move {distance} squares.')
+        return result
+
+    def check_get_to_end_position(
+        self, start: Position, end: Position, board, *, raise_exception=False, **kwargs
+    ) -> bool:
+        vector = kwargs['_direction'].vector
+        l_vector = Vector(vector.x * 2, vector.y)
+        r_vector = Vector(vector.x, vector.y * 2)
+        l_expected_pos = start + l_vector
+        r_expected_pos = start + r_vector
+        result = end == l_expected_pos or end == r_expected_pos
+
+        if raise_exception and not result:
+            raise PieceError(f'{self.name} cannot get from start({start}) to end({end}) position.')
+        return result
+
+    def check(
+        self,
+        start: Position,
+        end: Position,
+        board,
+        attacked_piece: Optional['Piece'] = None,
+        *,
+        raise_exception=True,
+        **kwargs,
+    ) -> bool:
+        kwargs['_direction'] = start.get_direction(end)
+        kwargs['_distance'] = start.get_distance(end, diagonal_direction=False)
+
+        return super().check(start, end, board, attacked_piece, raise_exception=raise_exception, **kwargs)
 
 
 class Bishop(Piece):
