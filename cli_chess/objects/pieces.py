@@ -48,8 +48,11 @@ class Piece:
         Checks whether the chess piece moves from the start position to the end position.
         :keyword diagonal_direction: if True then it considers diagonal directions (e.g. Bishop, Queen).
         """
-        direction = start.get_direction(end)
-        distance = start.get_distance(end, diagonal_direction=kwargs.pop('diagonal_direction', True))
+        if (direction := kwargs.get('_direction')) is None:
+            direction = start.get_direction(end)
+        if (distance := kwargs.get('_distance')) is None:
+            distance = start.get_distance(end)
+
         check_methods = deque(
             [
                 partial(self.check_move_in_direction, direction, raise_exception=raise_exception, **kwargs),

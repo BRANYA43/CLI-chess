@@ -157,6 +157,19 @@ class TestPiece:
             is True
         )
 
+    @patch.object(Position, 'get_distance')
+    @patch.object(Position, 'get_direction')
+    def test_check_method_doesnt_calculate_direction_and_distance_if_they_are_in_kwargs(
+        self, mock_direction, mock_distance, w_god_piece, board
+    ):
+        start = Position(0, 0)
+        end = Position(7, 7)
+
+        w_god_piece.check(start, end, board, _direction=Direction.UP, _distance=1)
+
+        mock_direction.assert_not_called()
+        mock_distance.assert_not_called()
+
     def test_check_method_returns_true_with_attacked_piece(self, w_god_piece, b_piece, board):
         start = Position(0, 0)
         end = Position(7, 7)
