@@ -23,7 +23,7 @@ class Piece:
         return f'{self.color.name.title()} {self.name}'
 
     def __repr__(self):
-        return f'<Piece(id:{id(self)}, color:{self.color}>'
+        return f'{self.name}(id:{id(self)}, color:{self.color})'
 
     @property
     def color(self) -> Color:
