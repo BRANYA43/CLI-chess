@@ -6,7 +6,7 @@ from pytest import raises
 
 from errors import BoardError
 from objects.board import Board
-from objects.enums import Color
+from objects.enums import Color, Direction
 from objects.position import Position
 
 
@@ -234,3 +234,52 @@ class TestBoard:
             board.move_piece(start, end)
 
         assert mock_check.called
+
+    def test_getting_possible_directions_returns_expected_directions(self, board):
+        for y in range(8):
+            for x in range(8):
+                pos = Position(x, y)
+                got_possible_positions = board.get_possible_directions(pos)
+                match pos:
+                    case Position(0, 0):
+                        assert got_possible_positions == {Direction.DOWN, Direction.RIGHT, Direction.DOWN_RIGHT}
+                    case Position(7, 0):
+                        assert got_possible_positions == {Direction.DOWN, Direction.LEFT, Direction.DOWN_LEFT}
+                    case Position(0, 7):
+                        assert got_possible_positions == {Direction.UP, Direction.RIGHT, Direction.UP_RIGHT}
+                    case Position(7, 7):
+                        assert got_possible_positions == {Direction.UP, Direction.LEFT, Direction.UP_LEFT}
+                    case Position(0, _):
+                        assert got_possible_positions == {
+                            Direction.UP,
+                            Direction.DOWN,
+                            Direction.RIGHT,
+                            Direction.UP_RIGHT,
+                            Direction.DOWN_RIGHT,
+                        }
+                    case Position(7, _):
+                        assert got_possible_positions == {
+                            Direction.UP,
+                            Direction.DOWN,
+                            Direction.LEFT,
+                            Direction.UP_LEFT,
+                            Direction.DOWN_LEFT,
+                        }
+                    case Position(_, 0):
+                        assert got_possible_positions == {
+                            Direction.DOWN,
+                            Direction.LEFT,
+                            Direction.RIGHT,
+                            Direction.DOWN_LEFT,
+                            Direction.DOWN_RIGHT,
+                        }
+                    case Position(_, 7):
+                        assert got_possible_positions == {
+                            Direction.UP,
+                            Direction.LEFT,
+                            Direction.RIGHT,
+                            Direction.UP_LEFT,
+                            Direction.UP_RIGHT,
+                        }
+                    case Position(_, _):
+                        assert got_possible_positions == set(Direction)

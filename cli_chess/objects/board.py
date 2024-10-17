@@ -4,7 +4,7 @@ from types import MappingProxyType
 from typing import Optional
 
 from errors import BoardError
-from objects.enums import Color
+from objects.enums import Color, Direction
 from objects.pieces import Piece
 from objects.position import Position
 
@@ -97,3 +97,22 @@ class Board:
     def validate_position_on_board(self, pos: Position):
         if pos > self._limit_pos:
             raise BoardError('x and y cannot be greate then 7.')
+
+    @staticmethod
+    def get_possible_directions(pos: Position) -> set[Direction]:
+        """
+        Returns possible directions to move by the position on board.
+        """
+        possible_direction = set(Direction)
+
+        if pos.x == 0:
+            possible_direction -= {Direction.LEFT, Direction.UP_LEFT, Direction.DOWN_LEFT}
+        elif pos.x == 7:
+            possible_direction -= {Direction.RIGHT, Direction.UP_RIGHT, Direction.DOWN_RIGHT}
+
+        if pos.y == 0:
+            possible_direction -= {Direction.UP, Direction.UP_LEFT, Direction.UP_RIGHT}
+        if pos.y == 7:
+            possible_direction -= {Direction.DOWN, Direction.DOWN_LEFT, Direction.DOWN_RIGHT}
+
+        return possible_direction
