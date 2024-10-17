@@ -5,6 +5,8 @@ from objects.vector import Vector
 
 
 class Position:
+    __match_args__ = ('x', 'y')
+
     def __init__(self, x: int, y: int):
         if not isinstance(x, int) or not isinstance(y, int):
             raise TypeError('x and y must be integer.')
