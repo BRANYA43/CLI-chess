@@ -258,26 +258,6 @@ class TestPosition:
             end = Position(x, y)
             assert start.get_distance(end) == distance
 
-    def test_getting_distance_with_considering_diagonal_directions_raises_error_invalid_position(self):
-        """
-           0   1   2   3   4
-        0 [ ] [E] [ ] [E] [ ]
-        1 [E] [ ] [ ] [ ] [E]
-        2 [ ] [ ] [#] [ ] [ ]
-        3 [E] [ ] [ ] [ ] [E]
-        4 [ ] [E] [ ] [E] [ ]
-        """
-        start = Position(2, 2)
-        error_positions = [(1, 0), (3, 0), (0, 1), (4, 1), (0, 3), (4, 3), (1, 4), (3, 4)]
-        for coords in error_positions:
-            end = Position(*coords)
-            with raises(
-                ValueError,
-                match='Positions must be on the same straight line, where between this line and x or y axis angle is '
-                'equal to 0, 90, 180 degrees.',
-            ):
-                start.get_distance(end)
-
     def test_getting_distance_without_considering_diagonal_directions(self):
         """
            0   1   2   3   4
@@ -317,7 +297,7 @@ class TestPosition:
         ]  # noqa
         for x, y, distance in coords_distances:
             end = Position(x, y)
-            assert start.get_distance(end, diagonal_direction=False) == distance
+            assert start.get_distance(end, is_difficult=True) == distance
 
     def test_getting_range_between_two_positions(self):
         """
@@ -399,7 +379,7 @@ class TestPosition:
             with raises(
                 ValueError,
                 match='Positions must be on the same straight line, where between this line and x or y axis angle is '
-                'equal to 0, 90, 180 degrees.',
+                'equal to 0, 45, 90 degrees.',
             ):
                 list(start.get_range_between(end))
 

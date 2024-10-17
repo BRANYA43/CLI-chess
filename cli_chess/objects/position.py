@@ -72,23 +72,17 @@ class Position:
         vector = pos - self
         return Direction.get_direction(vector)
 
-    def get_distance(self, pos: 'Position', *, diagonal_direction=True) -> int:
+    def get_distance(self, pos: 'Position', *, is_difficult=False) -> int:
         """
         Return vector direction between two positions.
-        'diagonal_direction' flag to considers diagonal directions for pieces being able to move by diagonals
-        (Bishop, Queen). By default, True.
+        'is_difficult' - flag to calculate difficult move pattern e.g. L-move of Knight
         """
         vector = pos - self
         direction = Direction.get_direction(vector)
         distance = abs(vector)
-        if direction in Direction.get_diagonal_directions() and diagonal_direction:
-            if distance % 2 != 0:
-                raise ValueError(
-                    'Positions must be on the same straight line, where between this line and x or y axis '
-                    'angle is equal to 0, 90, 180 degrees.'
-                )
-            return distance // 2
-        return distance
+        if direction in Direction.get_direct_directions() or is_difficult:
+            return distance
+        return distance // 2
 
     def get_range_between(self, pos: 'Position') -> Generator['Position', None, None]:
         """
@@ -101,7 +95,7 @@ class Position:
         if distance % 2 != 0 and direction in Direction.get_diagonal_directions():
             raise ValueError(
                 'Positions must be on the same straight line, where between this line and x or y axis '
-                'angle is equal to 0, 90, 180 degrees.'
+                'angle is equal to 0, 45, 90 degrees.'
             )
 
         if direction in Direction.get_diagonal_directions():

@@ -215,7 +215,7 @@ class Knight(Piece):
         **kwargs,
     ) -> bool:
         kwargs['_direction'] = start.get_direction(end)
-        kwargs['_distance'] = start.get_distance(end, diagonal_direction=False)
+        kwargs['_distance'] = start.get_distance(end, is_difficult=True)
 
         return super().check(start, end, board, attacked_piece, raise_exception=raise_exception, **kwargs)
 
