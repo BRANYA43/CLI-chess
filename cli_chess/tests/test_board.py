@@ -2,7 +2,7 @@ from collections import ChainMap
 from types import MappingProxyType
 from unittest.mock import patch
 
-from pytest import raises
+import pytest
 
 from errors import BoardError
 from objects.board import Board
@@ -75,7 +75,7 @@ class TestBoard:
         assert b_pos not in board.pieces_by_color[Color.WHITE]
         assert b_pos in board.pieces_by_color[Color.BLACK]
 
-        with raises(BoardError, match=r'Cannot add the chess piece, position x:0, y:0 is occupied.'):
+        with pytest.raises(BoardError, match=r'Cannot add the chess piece, position x:0, y:0 is occupied.'):
             board.add_piece(w_piece, w_pos)
 
         assert w_pos in board.pieces_by_color[Color.WHITE]
@@ -83,7 +83,7 @@ class TestBoard:
         assert b_pos not in board.pieces_by_color[Color.WHITE]
         assert b_pos in board.pieces_by_color[Color.BLACK]
 
-        with raises(BoardError, match=r'Cannot add the chess piece, position x:1, y:0 is occupied.'):
+        with pytest.raises(BoardError, match=r'Cannot add the chess piece, position x:1, y:0 is occupied.'):
             board.add_piece(b_piece, b_pos)
 
         assert w_pos in board.pieces_by_color[Color.WHITE]
@@ -92,10 +92,8 @@ class TestBoard:
         assert b_pos in board.pieces_by_color[Color.BLACK]
 
     def test_adding_piece_raises_error_if_position_out_range_of_board(self, board, w_piece):
-        out_limit_pos = Position(8, 8)
-
-        with raises(BoardError, match=r'x and y cannot be greate then 7.'):
-            board.add_piece(w_piece, out_limit_pos)
+        with pytest.raises(BoardError, match=r'x and y cannot be greate then 7.'):
+            board.add_piece(w_piece, Position(8, 8))
 
     def test_removing_piece_at_position(self, board, w_piece, b_piece):
         w_pos = Position(0, 0)
@@ -124,26 +122,21 @@ class TestBoard:
         assert b_pos not in board.pieces_by_color[Color.BLACK]
 
     def test_removing_piece_raises_error_if_position_is_empty(self, board, w_piece):
-        empty_pos = Position(0, 0)
-
-        with raises(BoardError, match=r'Cannot remove the chess piece, position x:0, y:0 is empty.'):
-            board.remove_piece(w_piece, empty_pos)
+        with pytest.raises(BoardError, match=r'Cannot remove the chess piece, position x:0, y:0 is empty.'):
+            board.remove_piece(w_piece, Position(0, 0))
 
     def test_removing_piece_raises_error_if_position_has_another_piece(self, board, w_piece, b_piece):
-        b_pos = Position(1, 0)
+        pos = Position(1, 0)
+        board.add_piece(b_piece, pos)
 
-        board.add_piece(b_piece, b_pos)
-
-        with raises(
+        with pytest.raises(
             BoardError, match=r'Cannot remove the chess piece, there is a different chess piece at position x:1, y:0.'
         ):
-            board.remove_piece(w_piece, b_pos)
+            board.remove_piece(w_piece, pos)
 
     def test_removing_piece_raises_error_if_position_out_range_of_board(self, board, w_piece):
-        out_limit_pos = Position(8, 8)
-
-        with raises(BoardError, match=r'x and y cannot be greate then 7.'):
-            board.remove_piece(w_piece, out_limit_pos)
+        with pytest.raises(BoardError, match=r'x and y cannot be greate then 7.'):
+            board.remove_piece(w_piece, Position(8, 8))
 
     def test_getting_piece_by_position(self, board, w_piece, b_piece):
         w_pos = Position(0, 0)
@@ -156,16 +149,12 @@ class TestBoard:
         assert board.get_piece(b_pos) is b_piece
 
     def test_getting_piece_raises_error_if_position_is_empty(self, board):
-        empty_pos = Position(0, 0)
-
-        with raises(BoardError, match=r'Cannot get the chess piece, position x:0, y:0 is empty.'):
-            board.get_piece(empty_pos)
+        with pytest.raises(BoardError, match=r'Cannot get the chess piece, position x:0, y:0 is empty.'):
+            board.get_piece(Position(0, 0))
 
     def test_getting_piece_raises_error_if_position_out_range_of_board(self, board):
-        out_limit_pos = Position(8, 8)
-
-        with raises(BoardError, match=r'x and y cannot be greate then 7.'):
-            board.get_piece(out_limit_pos)
+        with pytest.raises(BoardError, match=r'x and y cannot be greate then 7.'):
+            board.get_piece(Position(8, 8))
 
     def test_moving_piece_from_start_to_end_positions(self, board, w_god_piece, b_god_piece):
         w_start = Position(0, 0)
@@ -217,13 +206,11 @@ class TestBoard:
         assert board._pieces_by_color[Color.BLACK] == {}
 
     def test_moving_piece_raises_error_if_start_and_end_positions_is_match(self, board):
-        start = Position(0, 0)
-        end = Position(0, 0)
-
-        with raises(
+        pos = Position(0, 0)
+        with pytest.raises(
             BoardError, match=r'Cannot move chess piece, start position x:0, y:0 and end position x:0, y:0 match.'
         ):
-            board.move_piece(start, end)
+            board.move_piece(pos, pos)
 
     def test_moving_piece_calls_check_method_of_piece(self, board, w_god_piece):
         start = Position(0, 0)
@@ -235,51 +222,49 @@ class TestBoard:
 
         assert mock_check.called
 
-    def test_getting_possible_directions_returns_expected_directions(self, board):
-        for y in range(8):
-            for x in range(8):
-                pos = Position(x, y)
-                got_possible_positions = board.get_possible_directions(pos)
-                match pos:
-                    case Position(0, 0):
-                        assert got_possible_positions == {Direction.DOWN, Direction.RIGHT, Direction.DOWN_RIGHT}
-                    case Position(7, 0):
-                        assert got_possible_positions == {Direction.DOWN, Direction.LEFT, Direction.DOWN_LEFT}
-                    case Position(0, 7):
-                        assert got_possible_positions == {Direction.UP, Direction.RIGHT, Direction.UP_RIGHT}
-                    case Position(7, 7):
-                        assert got_possible_positions == {Direction.UP, Direction.LEFT, Direction.UP_LEFT}
-                    case Position(0, _):
-                        assert got_possible_positions == {
-                            Direction.UP,
-                            Direction.DOWN,
-                            Direction.RIGHT,
-                            Direction.UP_RIGHT,
-                            Direction.DOWN_RIGHT,
-                        }
-                    case Position(7, _):
-                        assert got_possible_positions == {
-                            Direction.UP,
-                            Direction.DOWN,
-                            Direction.LEFT,
-                            Direction.UP_LEFT,
-                            Direction.DOWN_LEFT,
-                        }
-                    case Position(_, 0):
-                        assert got_possible_positions == {
-                            Direction.DOWN,
-                            Direction.LEFT,
-                            Direction.RIGHT,
-                            Direction.DOWN_LEFT,
-                            Direction.DOWN_RIGHT,
-                        }
-                    case Position(_, 7):
-                        assert got_possible_positions == {
-                            Direction.UP,
-                            Direction.LEFT,
-                            Direction.RIGHT,
-                            Direction.UP_LEFT,
-                            Direction.UP_RIGHT,
-                        }
-                    case Position(_, _):
-                        assert got_possible_positions == set(Direction)
+    @pytest.mark.parametrize('pos', (Position(x, y) for y in range(8) for x in range(8)))
+    def test_getting_possible_directions_returns_expected_directions(self, pos, board):
+        possible_directions = board.get_possible_directions(pos)
+        match pos:
+            case Position(0, 0):
+                assert possible_directions == {Direction.DOWN, Direction.RIGHT, Direction.DOWN_RIGHT}
+            case Position(7, 0):
+                assert possible_directions == {Direction.DOWN, Direction.LEFT, Direction.DOWN_LEFT}
+            case Position(0, 7):
+                assert possible_directions == {Direction.UP, Direction.RIGHT, Direction.UP_RIGHT}
+            case Position(7, 7):
+                assert possible_directions == {Direction.UP, Direction.LEFT, Direction.UP_LEFT}
+            case Position(0, _):
+                assert possible_directions == {
+                    Direction.UP,
+                    Direction.DOWN,
+                    Direction.RIGHT,
+                    Direction.UP_RIGHT,
+                    Direction.DOWN_RIGHT,
+                }
+            case Position(7, _):
+                assert possible_directions == {
+                    Direction.UP,
+                    Direction.DOWN,
+                    Direction.LEFT,
+                    Direction.UP_LEFT,
+                    Direction.DOWN_LEFT,
+                }
+            case Position(_, 0):
+                assert possible_directions == {
+                    Direction.DOWN,
+                    Direction.LEFT,
+                    Direction.RIGHT,
+                    Direction.DOWN_LEFT,
+                    Direction.DOWN_RIGHT,
+                }
+            case Position(_, 7):
+                assert possible_directions == {
+                    Direction.UP,
+                    Direction.LEFT,
+                    Direction.RIGHT,
+                    Direction.UP_LEFT,
+                    Direction.UP_RIGHT,
+                }
+            case Position(_, _):
+                assert possible_directions == set(Direction)

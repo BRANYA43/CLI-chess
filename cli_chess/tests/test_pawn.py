@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from pytest import raises
+import pytest
+from pytest_lazy_fixtures import lf
 
 from errors import PieceError
 from objects.enums import Color, Direction
@@ -43,35 +44,38 @@ class TestPawn:
         assert w_pawn.check_move_in_direction(Direction.DOWN) is True
         assert b_pawn.check_move_in_direction(Direction.UP) is True
 
-    def test_pawn_cant_move_in_direction_if_it_attack(self, w_pawn, b_pawn):
-        assert w_pawn.check_move_in_direction(Direction.DOWN, is_attack=True) is False
-        with raises(PieceError, match=r'Pawn cannot move in the DOWN direction.'):
-            w_pawn.check_move_in_direction(Direction.DOWN, is_attack=True, raise_exception=True)
+    @pytest.mark.parametrize(
+        'pawn,direction',
+        [(lf('w_pawn'), Direction.DOWN), (lf('b_pawn'), Direction.UP)],
+    )
+    def test_pawn_cant_move_in_direction_if_it_attack(self, pawn, direction):
+        assert pawn.check_move_in_direction(direction, is_attack=True) is False
+        with pytest.raises(PieceError, match=rf'Pawn cannot move in the {direction} direction.'):
+            pawn.check_move_in_direction(direction, is_attack=True, raise_exception=True)
 
-        assert b_pawn.check_move_in_direction(Direction.UP, is_attack=True) is False
-        with raises(PieceError, match=r'Pawn cannot move in the UP direction.'):
-            b_pawn.check_move_in_direction(Direction.UP, is_attack=True, raise_exception=True)
+    @pytest.mark.parametrize(
+        'pawn,directions',
+        [
+            (lf('w_pawn'), [Direction.DOWN_LEFT, Direction.DOWN_RIGHT]),
+            (lf('b_pawn'), [Direction.UP_LEFT, Direction.UP_RIGHT]),
+        ],
+    )
+    def test_pawn_can_attack_in_direction_if_it_attack(self, pawn, directions, w_pawn, b_pawn):
+        for direction in directions:
+            assert pawn.check_move_in_direction(direction, is_attack=True) is True
 
-    def test_pawn_can_attack_in_direction_if_it_attack(self, w_pawn, b_pawn):
-        assert w_pawn.check_move_in_direction(Direction.DOWN_LEFT, is_attack=True) is True
-        assert w_pawn.check_move_in_direction(Direction.DOWN_RIGHT, is_attack=True) is True
-        assert b_pawn.check_move_in_direction(Direction.UP_LEFT, is_attack=True) is True
-        assert b_pawn.check_move_in_direction(Direction.UP_RIGHT, is_attack=True) is True
-
-    def test_pawn_cant_attack_in_direction_if_it_doesnt_attack(self, w_pawn, b_pawn):
-        assert w_pawn.check_move_in_direction(Direction.DOWN_LEFT) is False
-        assert w_pawn.check_move_in_direction(Direction.DOWN_RIGHT) is False
-        with raises(PieceError, match=r'Pawn cannot move in the DOWN LEFT direction.'):
-            w_pawn.check_move_in_direction(Direction.DOWN_LEFT, raise_exception=True)
-        with raises(PieceError, match=r'Pawn cannot move in the DOWN RIGHT direction.'):
-            w_pawn.check_move_in_direction(Direction.DOWN_RIGHT, raise_exception=True)
-
-        assert b_pawn.check_move_in_direction(Direction.UP_LEFT) is False
-        assert b_pawn.check_move_in_direction(Direction.UP_RIGHT) is False
-        with raises(PieceError, match=r'Pawn cannot move in the UP LEFT direction.'):
-            b_pawn.check_move_in_direction(Direction.UP_LEFT, raise_exception=True)
-        with raises(PieceError, match=r'Pawn cannot move in the UP RIGHT direction.'):
-            b_pawn.check_move_in_direction(Direction.UP_RIGHT, raise_exception=True)
+    @pytest.mark.parametrize(
+        'pawn,directions',
+        [
+            (lf('w_pawn'), [Direction.DOWN_LEFT, Direction.DOWN_RIGHT]),
+            (lf('b_pawn'), [Direction.UP_LEFT, Direction.UP_RIGHT]),
+        ],
+    )
+    def test_pawn_cant_attack_in_direction_if_it_doesnt_attack(self, pawn, directions, w_pawn, b_pawn):
+        for direction in directions:
+            assert pawn.check_move_in_direction(direction) is False
+            with pytest.raises(PieceError, match=rf'Pawn cannot move in the {direction} direction.'):
+                pawn.check_move_in_direction(direction, raise_exception=True)
 
     def test_pawn_can_move_2_squares_once_for_only_first_move(self, w_pawn):
         assert w_pawn.is_moved() is False
@@ -108,10 +112,9 @@ class TestPawn:
     ):
         start = Position(0, 0)
         end = Position(1, 0)
-        attacked_piece = b_pawn
-        w_pawn.check(start, end, board, attacked_piece)
+        w_pawn.check(start, end, board, b_pawn)
 
-        mock_parent_check.assert_called_with(start, end, board, attacked_piece, raise_exception=True, is_attack=True)
+        mock_parent_check.assert_called_with(start, end, board, b_pawn, raise_exception=True, is_attack=True)
 
     @patch.object(Piece, 'check', return_value=True)
     def test_check_method_passes_is_attack_arg_as_false_to_parent_check_method(self, mock_parent_check, w_pawn, board):

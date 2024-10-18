@@ -1,8 +1,11 @@
-from pytest import fixture
+from typing import Sequence
+
+import pytest
 
 from objects.board import Board
 from objects.enums import Color, Direction
 from objects.pieces import Piece, Queen, Bishop, Rook, Pawn, Knight, King
+from objects.position import Position
 
 
 def __make_god_piece(piece: Piece):
@@ -10,7 +13,11 @@ def __make_god_piece(piece: Piece):
     piece.MAX_MOVE_COUNT = 8
 
 
-@fixture
+def get_position_list(coords: Sequence[tuple[int, int]]) -> list[Position]:
+    return [Position(x, y) for x, y in coords]
+
+
+@pytest.fixture()
 def w_piece() -> Piece:
     """
     White Piece
@@ -18,7 +25,7 @@ def w_piece() -> Piece:
     return Piece(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_piece() -> Piece:
     """
     Black Piece
@@ -26,7 +33,7 @@ def b_piece() -> Piece:
     return Piece(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_god_piece(w_piece) -> Piece:
     """
     White God Piece
@@ -35,7 +42,7 @@ def w_god_piece(w_piece) -> Piece:
     return w_piece
 
 
-@fixture
+@pytest.fixture()
 def b_god_piece(b_piece) -> Piece:
     """
     Black God Piece
@@ -44,7 +51,7 @@ def b_god_piece(b_piece) -> Piece:
     return b_piece
 
 
-@fixture
+@pytest.fixture()
 def w_pawn() -> Pawn:
     """
     White Pawn
@@ -52,7 +59,7 @@ def w_pawn() -> Pawn:
     return Pawn(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_pawn() -> Pawn:
     """
     Black Pawn
@@ -60,7 +67,7 @@ def b_pawn() -> Pawn:
     return Pawn(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_rook() -> Rook:
     """
     White Rook
@@ -68,7 +75,7 @@ def w_rook() -> Rook:
     return Rook(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_rook() -> Rook:
     """
     Black Rook
@@ -76,7 +83,7 @@ def b_rook() -> Rook:
     return Rook(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_knight() -> Knight:
     """
     White Knight
@@ -84,7 +91,7 @@ def w_knight() -> Knight:
     return Knight(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_knight() -> Knight:
     """
     Black Knight
@@ -92,7 +99,7 @@ def b_knight() -> Knight:
     return Knight(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_bishop() -> Bishop:
     """
     White Bishop
@@ -100,7 +107,7 @@ def w_bishop() -> Bishop:
     return Bishop(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_bishop() -> Bishop:
     """
     Black Bishop
@@ -108,7 +115,7 @@ def b_bishop() -> Bishop:
     return Bishop(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_queen() -> Queen:
     """
     White Queen
@@ -116,7 +123,7 @@ def w_queen() -> Queen:
     return Queen(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_queen() -> Queen:
     """
     Black Queen
@@ -124,7 +131,7 @@ def b_queen() -> Queen:
     return Queen(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def w_king():
     """
     White King
@@ -132,7 +139,7 @@ def w_king():
     return King(Color.WHITE)
 
 
-@fixture
+@pytest.fixture()
 def b_king() -> King:
     """
     Black King
@@ -140,7 +147,7 @@ def b_king() -> King:
     return King(Color.BLACK)
 
 
-@fixture
+@pytest.fixture()
 def board() -> Board:
     """
     Board

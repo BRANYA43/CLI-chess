@@ -1,8 +1,9 @@
-from pytest import raises
+import pytest
 
 from objects.enums import Direction
 from objects.position import Position
 from objects.vector import Vector
+from tests.conftest import get_position_list
 
 
 class TestPosition:
@@ -11,18 +12,13 @@ class TestPosition:
         assert pos.x == 1
         assert pos.y == 0
 
-    def test_creating_position_raises_error_if_x_or_y_dont_have_int_type(self):
-        # invalid "x" type
-        with raises(TypeError, match='x and y must be integer.'):
-            Position('1', 0)
-
-        # invalid "y: type
-        with raises(TypeError, match='x and y must be integer.'):
-            Position(0, '2')
+    @pytest.mark.parametrize('x, y', [('1', 1), (1, '1')])
+    def test_creating_vector_raises_error_if_x_or_y_dont_have_int_type(self, x, y):
+        with pytest.raises(TypeError, match='x and y must be integer.'):
+            Vector(x, y)
 
     def test_position_is_hashed(self):
-        pos = Position(20, 30)
-        assert hash(pos) == hash((pos.x, pos.y))
+        assert hash(Position(20, 30)) == hash((20, 30))
 
     def test_position_is_iterable(self):
         x, y = Position(20, 30)
@@ -42,7 +38,7 @@ class TestPosition:
         pos = Position(1, 2)
         invalid_operand = (1, 2)
 
-        with raises(TypeError, match=r'Expected Vector, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Vector, but got tuple.'):
             pos + invalid_operand
 
     def test_subtracting_two_positions_returns_vector(self):
@@ -57,7 +53,7 @@ class TestPosition:
         pos = Position(1, 2)
         invalid_operand = (1, 2)
 
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos - invalid_operand
 
     def test_equal_comparing(self):
@@ -72,7 +68,7 @@ class TestPosition:
         pos = Position(1, 2)
         invalid_operand = (1, 2)
 
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos == invalid_operand
 
     def test_not_equal_comparing(self):
@@ -89,7 +85,7 @@ class TestPosition:
         pos = Position(1, 2)
         invalid_operand = (1, 2)
 
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos != invalid_operand
 
     def test_greate_than_comparing(self):
@@ -117,7 +113,7 @@ class TestPosition:
     def test_greate_than_comparing_raises_error_if_second_operand_isnt_position(self):
         pos = Position(1, 3)
         invalid_operand = (1, 2)
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos > invalid_operand
 
     def test_greate_than_or_equal_comparing(self):
@@ -145,7 +141,7 @@ class TestPosition:
     def test_greate_than_or_equal_comparing_raises_error_if_second_operand_isnt_position(self):
         pos = Position(1, 3)
         invalid_operand = (1, 2)
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos >= invalid_operand
 
     def test_less_than_comparing(self):
@@ -173,7 +169,7 @@ class TestPosition:
     def test_less_than_comparing_raises_error_if_second_operand_isnt_position(self):
         pos = Position(1, 3)
         invalid_operand = (1, 2)
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos < invalid_operand
 
     def test_less_than_ot_equal_comparing(self):
@@ -201,10 +197,23 @@ class TestPosition:
     def test_less_than_ot_equal_comparing_if_second_operand_isnt_position(self):
         pos = Position(1, 3)
         invalid_operand = (1, 2)
-        with raises(TypeError, match=r'Expected Position, but got tuple.'):
+        with pytest.raises(TypeError, match=r'Expected Position, but got tuple.'):
             pos <= invalid_operand
 
-    def test_position_gets_correct_direction(self):
+    @pytest.mark.parametrize(
+        'direction,coords',
+        [
+            (Direction.UP, ([(2, 0), (2, 1)])),
+            (Direction.DOWN, ([(2, 3), (2, 4)])),
+            (Direction.LEFT, ([(1, 2), (0, 2)])),
+            (Direction.RIGHT, ([(3, 2), (4, 2)])),
+            (Direction.UP_LEFT, ([(0, 0), (1, 0), (0, 1), (1, 1)])),
+            (Direction.UP_RIGHT, ([(3, 0), (4, 0), (3, 1), (4, 1)])),
+            (Direction.DOWN_LEFT, ([(0, 3), (1, 3), (0, 4), (1, 4)])),
+            (Direction.DOWN_RIGHT, ([(3, 3), (4, 3), (3, 4), (4, 4)])),
+        ],
+    )
+    def test_position_gets_correct_direction(self, direction, coords):
         """
            0    1    2   3    4
         0 [UL] [UL] [U] [UR] [UR]
@@ -214,33 +223,12 @@ class TestPosition:
         4 [DL] [DL] [D] [DR] [DR]
         """
         start = Position(2, 2)
-        directions_coords = {
-            Direction.UP: [(2, 0), (2, 1)],
-            Direction.DOWN: [(2, 3), (2, 4)],
-            Direction.LEFT: [(1, 2), (0, 2)],
-            Direction.RIGHT: [(3, 2), (4, 2)],
-            Direction.UP_LEFT: [(0, 0), (1, 0), (0, 1), (1, 1)],
-            Direction.UP_RIGHT: [(3, 0), (4, 0), (3, 1), (4, 1)],
-            Direction.DOWN_LEFT: [(0, 3), (1, 3), (0, 4), (1, 4)],
-            Direction.DOWN_RIGHT: [(3, 3), (4, 3), (3, 4), (4, 4)],
-        }
-        for direction, coords in directions_coords.items():
-            for x, y in coords:
-                end = Position(x, y)
-                assert start.get_direction(end) == direction
+        for end in get_position_list(coords):
+            assert start.get_direction(end) == direction
 
-    def test_getting_distance_with_considering_diagonal_directions(self):
-        """
-           0   1   2   3   4
-        0 [2] [ ] [2] [ ] [2]
-        1 [ ] [1] [1] [1] [ ]
-        2 [2] [1] [#] [1] [2]
-        3 [ ] [1] [1] [1] [ ]
-        4 [2] [ ] [2] [ ] [2]
-        """
-        start = Position(2, 2)
-        # x, y, distance
-        coords_distances = [
+    @pytest.mark.parametrize(
+        'x,y,distance',
+        [
             (2, 1, 1),
             (2, 0, 2),  # UP
             (2, 3, 1),
@@ -257,24 +245,24 @@ class TestPosition:
             (0, 4, 2),  # DOWN_LEFT
             (3, 3, 1),
             (4, 4, 2),  # DOWN_RIGHT
-        ]  # noqa
-
-        for x, y, distance in coords_distances:
-            end = Position(x, y)
-            assert start.get_distance(end) == distance
-
-    def test_getting_distance_without_considering_diagonal_directions(self):
+        ],
+    )
+    def test_getting_distance_with_considering_diagonal_directions(self, x, y, distance):
         """
            0   1   2   3   4
-        0 [4] [3] [2] [3] [4]
-        1 [3] [2] [1] [2] [3]
+        0 [2] [ ] [2] [ ] [2]
+        1 [ ] [1] [1] [1] [ ]
         2 [2] [1] [#] [1] [2]
-        3 [3] [2] [1] [2] [3]
-        4 [4] [3] [2] [3] [4]
+        3 [ ] [1] [1] [1] [ ]
+        4 [2] [ ] [2] [ ] [2]
         """
         start = Position(2, 2)
-        # x, y, distance
-        coords_distances = [
+        end = Position(x, y)
+        assert start.get_distance(end) == distance
+
+    @pytest.mark.parametrize(
+        'x,y,distance',
+        [
             (2, 1, 1),
             (2, 0, 2),  # UP
             (2, 3, 1),
@@ -299,76 +287,83 @@ class TestPosition:
             (4, 3, 3),
             (3, 4, 3),
             (4, 4, 4),  # DOWN_RIGHT
-        ]  # noqa
-        for x, y, distance in coords_distances:
-            end = Position(x, y)
-            assert start.get_distance(end, is_difficult=True) == distance
-
-    def test_getting_range_between_two_positions(self):
+        ],
+    )
+    def test_getting_distance_without_considering_diagonal_directions(self, x, y, distance):
         """
            0   1   2   3   4
-        0 [S] [x] [x] [x] [E]
-        1 [x] [x] [ ] [ ] [ ]
-        2 [x] [ ] [x] [ ] [ ]
-        3 [x] [ ] [ ] [x] [ ]
-        4 [E] [ ] [ ] [ ] [E]
-           0   1   2   3   4
-        0 [E] [x] [x] [x] [S]
-        1 [ ] [ ] [ ] [x] [x]
-        2 [ ] [ ] [x] [ ] [x]
-        3 [ ] [x] [ ] [ ] [x]
-        4 [E] [ ] [ ] [ ] [E]
-           0   1   2   3   4
-        0 [E] [ ] [ ] [ ] [E]
-        1 [x] [ ] [ ] [x] [ ]
-        2 [x] [ ] [x] [ ] [ ]
-        3 [x] [x] [ ] [ ] [ ]
-        4 [S] [x] [x] [x] [E]
-           0   1   2   3   4
-        0 [E] [ ] [ ] [ ] [E]
-        1 [ ] [x] [ ] [ ] [x]
-        2 [ ] [ ] [x] [ ] [x]
-        3 [ ] [ ] [ ] [x] [x]
-        4 [E] [x] [x] [x] [S]
+        0 [4] [3] [2] [3] [4]
+        1 [3] [2] [1] [2] [3]
+        2 [2] [1] [#] [1] [2]
+        3 [3] [2] [1] [2] [3]
+        4 [4] [3] [2] [3] [4]
         """
-        starts = [(0, 0), (4, 0), (0, 4), (4, 4)]
-        ends = [
-            [(4, 0), (0, 4), (4, 4)],  # start(0, 0)
-            [(0, 0), (0, 4), (4, 4)],  # start(4, 0)
-            [(0, 0), (4, 0), (4, 4)],  # start(0, 4)
-            [(0, 0), (4, 0), (0, 4)],  # start(4, 4)
-        ]
-        ranges = [
-            [
-                [(1, 0), (2, 0), (3, 0)],  # start(0, 0) -> end(4, 0)
-                [(0, 1), (0, 2), (0, 3)],  # start(0, 0) -> end(0, 4)
-                [(1, 1), (2, 2), (3, 3)],
-            ],  # start(0, 0) -> end(4, 4)
-            [
-                [(3, 0), (2, 0), (1, 0)],  # start(4, 0) -> end(0, 0)
-                [(3, 1), (2, 2), (1, 3)],  # start(4, 0) -> end(0, 4)
-                [(4, 1), (4, 2), (4, 3)],  # start(4, 0) -> end(4, 4)
-            ],
-            [
-                [(0, 3), (0, 2), (0, 1)],  # start(0, 4) -> end(0, 0)
-                [(1, 3), (2, 2), (3, 1)],  # start(0, 4) -> end(4, 0)
-                [(1, 4), (2, 4), (3, 4)],  # start(0, 4) -> end(4, 4)
-            ],
-            [
-                [(3, 3), (2, 2), (1, 1)],  # start(4, 4) -> end(0, 0)
-                [(4, 3), (4, 2), (4, 1)],  # start(4, 4) -> end(4, 0)
-                [(3, 4), (2, 4), (1, 4)],  # start(4, 4) -> end(0, 4)
-            ],
-        ]  # noqa
+        start = Position(2, 2)
+        end = Position(x, y)
+        assert start.get_distance(end, is_difficult=True) == distance
 
-        for start_coords, ends_, ranges_ in zip(starts, ends, ranges):
-            start = Position(*start_coords)
-            for end_coords, range_coords in zip(ends_, ranges_):
-                end = Position(*end_coords)
-                range_ = [Position(*coords) for coords in range_coords]
-                assert list(start.get_range_between(end)) == range_
+    @pytest.mark.parametrize(
+        'start,ends,ranges',
+        [
+            (
+                Position(0, 0),
+                get_position_list([(4, 0), (0, 4), (4, 4)]),  # ends
+                [
+                    [(1, 0), (2, 0), (3, 0)],  # start(0, 0) -> end(4, 0)
+                    [(0, 1), (0, 2), (0, 3)],  # start(0, 0) -> end(0, 4)
+                    [(1, 1), (2, 2), (3, 3)],  # start(0, 0) -> end(4, 4)
+                ],
+            ),
+            (
+                Position(4, 0),
+                get_position_list([(0, 0), (0, 4), (4, 4)]),  # ends
+                [
+                    [(3, 0), (2, 0), (1, 0)],  # start(4, 0) -> end(0, 0)
+                    [(3, 1), (2, 2), (1, 3)],  # start(4, 0) -> end(0, 4)
+                    [(4, 1), (4, 2), (4, 3)],  # start(4, 0) -> end(4, 4)
+                ],
+            ),
+            (
+                Position(0, 4),
+                get_position_list([(0, 0), (4, 0), (4, 4)]),  # ends
+                [
+                    [(0, 3), (0, 2), (0, 1)],  # start(0, 4) -> end(0, 0)
+                    [(1, 3), (2, 2), (3, 1)],  # start(0, 4) -> end(4, 0)
+                    [(1, 4), (2, 4), (3, 4)],  # start(0, 4) -> end(4, 4)
+                ],
+            ),
+            (
+                Position(4, 4),
+                get_position_list([(0, 0), (4, 0), (0, 4)]),  # ends
+                [
+                    [(3, 3), (2, 2), (1, 1)],  # start(4, 4) -> end(0, 0)
+                    [(4, 3), (4, 2), (4, 1)],  # start(4, 4) -> end(4, 0)
+                    [(3, 4), (2, 4), (1, 4)],  # start(4, 4) -> end(0, 4)
+                ],
+            ),
+        ],
+    )
+    def test_getting_range_between_two_positions(self, start, ends, ranges):
+        """
+           0   1   2   3   4      0   1   2   3   4
+        0 [S] [x] [x] [x] [E]   0 [E] [x] [x] [x] [S]
+        1 [x] [x] [ ] [ ] [ ]   1 [ ] [ ] [ ] [x] [x]
+        2 [x] [ ] [x] [ ] [ ]   2 [ ] [ ] [x] [ ] [x]
+        3 [x] [ ] [ ] [x] [ ]   3 [ ] [x] [ ] [ ] [x]
+        4 [E] [ ] [ ] [ ] [E]   4 [E] [ ] [ ] [ ] [E]
 
-    def test_getting_range_between_two_positions_raises_error_for_invalid_position(self):
+           0   1   2   3   4      0   1   2   3   4
+        0 [E] [ ] [ ] [ ] [E]   0 [E] [ ] [ ] [ ] [E]
+        1 [x] [ ] [ ] [x] [ ]   1 [ ] [x] [ ] [ ] [x]
+        2 [x] [ ] [x] [ ] [ ]   2 [ ] [ ] [x] [ ] [x]
+        3 [x] [x] [ ] [ ] [ ]   3 [ ] [ ] [ ] [x] [x]
+        4 [S] [x] [x] [x] [E]   4 [E] [x] [x] [x] [S]
+        """
+        for end, ranges_ in zip(ends, ranges):
+            assert list(start.get_range_between(end)) == get_position_list(ranges_)
+
+    @pytest.mark.parametrize('end', get_position_list([(1, 0), (3, 0), (0, 1), (4, 1), (0, 3), (4, 3), (1, 4), (3, 4)]))
+    def test_getting_range_between_two_positions_raises_error_for_invalid_position(self, end):
         """
            0   1   2   3   4
         0 [ ] [E] [ ] [E] [ ]
@@ -378,17 +373,15 @@ class TestPosition:
         4 [ ] [E] [ ] [E] [ ]
         """
         start = Position(2, 2)
-        error_positions = [(1, 0), (3, 0), (0, 1), (4, 1), (0, 3), (4, 3), (1, 4), (3, 4)]
-        for coords in error_positions:
-            end = Position(*coords)
-            with raises(
-                ValueError,
-                match='The angle between the vector of two positions and the x or y axis must be one of the following: '
-                '0°, 45°, 90°, 135°, or 180°.',
-            ):
-                list(start.get_range_between(end))
+        with pytest.raises(
+            ValueError,
+            match='The angle between the vector of two positions and the x or y axis must be one of the following: '
+            '0°, 45°, 90°, 135°, or 180°.',
+        ):
+            list(start.get_range_between(end))
 
-    def test_getting_range_between_two_positions_returns_no_positions_if_end_position_is_neighbor_of_start(self):
+    @pytest.mark.parametrize('end', get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]))
+    def test_getting_range_between_two_positions_returns_no_positions_if_end_position_is_neighbor_of_start(self, end):
         """
            0   1   2   3   4
         0 [ ] [ ] [ ] [ ] [ ]
@@ -398,8 +391,4 @@ class TestPosition:
         4 [ ] [ ] [ ] [ ] [ ]
         """
         start = Position(2, 2)
-        ends = [(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
-
-        for coords in ends:
-            end = Position(*coords)
-            assert list(start.get_range_between(end)) == []
+        assert list(start.get_range_between(end)) == []
