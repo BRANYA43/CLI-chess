@@ -27,10 +27,13 @@ class Position:
         return f'x:{self._x}, y:{self._y}'
 
     def __hash__(self):
-        return hash((self._x, self._y))
+        return hash(tuple(self))
 
     def __repr__(self):
         return f'<Position(x:{self._x}, y:{self._y})>'
+
+    def __iter__(self):
+        return (i for i in (self._x, self._y))
 
     def __add__(self, other) -> 'Position':
         if isinstance(other, Vector):
@@ -43,7 +46,7 @@ class Position:
 
     def __eq__(self, other):
         self.__valid_position(other)
-        return self._x == other.x and self._y == other.y
+        return tuple(self) == tuple(other)
 
     def __ne__(self, other):
         self.__valid_position(other)

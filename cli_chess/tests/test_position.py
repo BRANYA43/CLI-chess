@@ -24,6 +24,11 @@ class TestPosition:
         pos = Position(20, 30)
         assert hash(pos) == hash((pos.x, pos.y))
 
+    def test_position_is_iterable(self):
+        x, y = Position(20, 30)
+        assert x == 20
+        assert y == 30
+
     def test_adding_position_with_vector_new_position(self):
         pos = Position(1, 2)
         vector = Vector(-1, 3)
