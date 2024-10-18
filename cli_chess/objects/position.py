@@ -96,7 +96,8 @@ class Position:
 
         if abs(vector.angle) not in (0.0, 45.0, 90.0, 135.0, 180.0):
             raise ValueError(
-                'The angle between the vector of two positions and the x or y axis must be one of the following: 0°, 45°, 90°, 135°, or 180°.'
+                'The angle between the vector of two positions and the x or y axis must be one of the following: '
+                '0°, 45°, 90°, 135°, or 180°.'
             )
 
         direction = Direction.get_direction(vector)
