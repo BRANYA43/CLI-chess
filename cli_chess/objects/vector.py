@@ -1,3 +1,6 @@
+import math
+
+
 class Vector:
     def __init__(self, x: int, y: int):
         if not isinstance(x, int) or not isinstance(y, int):
@@ -12,6 +15,12 @@ class Vector:
     @property
     def y(self) -> int:
         return self._y
+
+    @property
+    def angle(self) -> float:
+        radians = math.atan2(self._x, self._y)
+        degrees = math.degrees(radians)
+        return degrees
 
     def __repr__(self):
         return f'<Vector(x:{self._x}, y:{self._x})>'

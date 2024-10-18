@@ -1,3 +1,4 @@
+import pytest
 from pytest import raises
 
 from objects.vector import Vector
@@ -35,3 +36,20 @@ class TestVector:
         for coords in [(0, 0), (1, 1), (-1, 1), (-1, -1)]:
             vector = Vector(*coords)
             assert abs(vector) == abs(vector.x) + abs(vector.y)
+
+    @pytest.mark.parametrize(
+        'x, y, expected_angle',
+        [
+            (0, 0, 0.0),
+            (0, 1, 0.0),
+            (1, 1, 45.0),
+            (1, 0, 90.0),
+            (1, -1, 135.0),
+            (0, -1, 180.0),
+            (-1, -1, -135.0),
+            (-1, 0, -90.0),
+            (-1, 1, -45.0),
+        ],
+    )
+    def test_angle_property(self, x, y, expected_angle):
+        assert Vector(x, y).angle == expected_angle
