@@ -98,6 +98,15 @@ class Piece:
         try:
             for next_pos in start.get_range_between(end):
                 if board.has_piece_at_position(next_pos):
+                    maybe_enemy_king = board.get_piece(next_pos)
+                    if (
+                        isinstance(maybe_enemy_king, King)
+                        and maybe_enemy_king.color != self.color
+                        and next_pos.get_distance(end) == 1
+                        and maybe_enemy_king.is_in_check(next_pos, start, self, board)
+                    ):
+                        continue
+
                     if raise_exception:
                         raise PieceError(f'{self.name} cannot move through another chess piece.')
                     return False
@@ -230,3 +239,78 @@ class Queen(Piece):
     ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction)
 
     MAX_MOVE_COUNT = 8
+
+
+class King(Piece):
+    ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction)
+
+    MAX_MOVE_COUNT = 1
+
+    def check_get_to_end_position(
+        self, start: Position, end: Position, board, *, raise_exception=False, **kwargs
+    ) -> bool:
+        for pos, piece in board.pieces_by_color[self.color.opposite_color].items():
+            if end == pos:
+                continue
+            elif piece.check(pos, end, board, self, raise_exception=False):
+                if raise_exception:
+                    raise PieceError(
+                        'King cannot move to the end position that is on attack line of enemy chess piece.'
+                    )
+                return False
+
+        return True
+
+    def is_in_check(self, king_pos: Position, check_pos: Position, check_piece: Piece, board) -> bool:
+        """
+        Returns True if king is in check else False.
+        """
+        return check_piece.check(check_pos, king_pos, board, self, raise_exception=False)
+
+    def is_in_checkmate(self, king_pos: Position, check_pos: Position, check_piece: Piece, board) -> bool:
+        """
+        Returns True if king is in checkmate else False.
+        """
+        if self._can_king_flee(king_pos, board):
+            return False
+
+        if self._has_allied_piece_to_stop_attack_to_king(king_pos, check_pos, check_piece, board):
+            return False
+
+        return True
+
+    def _can_king_flee(self, king_pos: Position, board) -> bool:
+        """
+        Returns True if king can move to another square that isn't on attack line of enemy chess piece else False
+        """
+        king_possible_direction = board.get_possible_directions(king_pos)
+        for direction in king_possible_direction:
+            possible_pos = king_pos + direction.vector
+            attacked_piece = board.get_piece(possible_pos) if board.has_piece_at_position(possible_pos) else None
+            if self.check(king_pos, possible_pos, board, attacked_piece, raise_exception=False):
+                return True
+        return False
+
+    def _has_allied_piece_to_stop_attack_to_king(
+        self, king_pos: Position, check_pos: Position, check_piece: Piece, board
+    ) -> bool:
+        """
+        Returns True if there has some allied chess piece to stop attack to king.
+        """
+        for allied_pos, allied_piece in board.pieces_by_color[self.color].items():
+            if allied_piece.check(allied_pos, check_pos, board, check_piece, raise_exception=False):
+                return True
+            elif not isinstance(check_piece, Knight) and self._has_allied_piece_to_stand_on_attack_line_before_king(
+                king_pos, check_pos, allied_pos, allied_piece, board
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def _has_allied_piece_to_stand_on_attack_line_before_king(
+        king_pos: Position, check_pos: Position, allied_pos: Position, allied_piece: Piece, board
+    ) -> bool:
+        for pos in king_pos.get_range_between(check_pos):
+            if allied_piece.check(allied_pos, pos, board, raise_exception=False):
+                return True
+        return False
