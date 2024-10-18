@@ -93,14 +93,13 @@ class Position:
         """
         vector = pos - self
         distance = abs(vector)
-        direction = Direction.get_direction(vector)
 
-        if distance % 2 != 0 and direction in Direction.get_diagonal_directions():
+        if abs(vector.angle) not in (0.0, 45.0, 90.0, 135.0, 180.0):
             raise ValueError(
-                'Positions must be on the same straight line, where between this line and x or y axis '
-                'angle is equal to 0, 45, 90 degrees.'
+                'The angle between the vector of two positions and the x or y axis must be one of the following: 0°, 45°, 90°, 135°, or 180°.'
             )
 
+        direction = Direction.get_direction(vector)
         if direction in Direction.get_diagonal_directions():
             distance //= 2
 

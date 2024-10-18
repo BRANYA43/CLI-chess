@@ -383,8 +383,7 @@ class TestPosition:
             end = Position(*coords)
             with raises(
                 ValueError,
-                match='Positions must be on the same straight line, where between this line and x or y axis angle is '
-                'equal to 0, 45, 90 degrees.',
+                match='The angle between the vector of two positions and the x or y axis must be one of the following: 0°, 45°, 90°, 135°, or 180°.',
             ):
                 list(start.get_range_between(end))
 
