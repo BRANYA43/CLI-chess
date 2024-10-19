@@ -9,9 +9,12 @@ class TestVector:
         assert vector.x == -1
         assert vector.y == 2
 
-    @pytest.mark.parametrize('x, y', [('1', 1), (1, '1')])
+    @pytest.mark.parametrize('x, y', [(None, 1), (1, None)])
     def test_creating_vector_raises_error_if_x_or_y_dont_have_int_type(self, x, y):
-        pytest.raises(TypeError, Vector, x, y, match='x and y must be integer.')
+        with pytest.raises(
+            TypeError, match=rf'x and y must be integer, but got: x={type(x).__name__}, y={type(y).__name__}.'
+        ):
+            Vector(x, y)
 
     def test_vector_is_iterable(self):
         x, y = Vector(100, 200)
@@ -25,6 +28,12 @@ class TestVector:
 
         assert (main == equal) is True
         assert (main == not_equal) is False
+
+    def test_eq_comparing_raises_error_if_second_operand_isnt_vector(self):
+        main = Vector(1, 0)
+        not_vector = (1, 1)
+        with pytest.raises(TypeError, match=r'Expected Vector, but got tuple.'):
+            main == not_vector
 
     @pytest.mark.parametrize('x, y, expected_abs', [(0, 0, 0), (1, 1, 2), (-1, 1, 2), (1, -1, 2), (-1, -1, 2)])
     def test_abs_return_all_positive_integer(self, x, y, expected_abs):
