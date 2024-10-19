@@ -283,7 +283,7 @@ class King(Piece):
         """
         Returns True if king can move to another square that isn't on attack line of enemy chess piece else False
         """
-        king_possible_direction = board.get_possible_directions(king_pos)
+        king_possible_direction = board.get_possible_directions(king_pos, self)
         for direction in king_possible_direction:
             possible_pos = king_pos + direction.vector
             attacked_piece = board.get_piece(possible_pos) if board.has_piece_at_position(possible_pos) else None

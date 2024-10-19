@@ -98,11 +98,12 @@ class Board:
         if pos > self._limit_pos:
             raise BoardError('x and y cannot be greate then 7.')
 
-    @staticmethod
-    def get_possible_directions(pos: Position) -> set[Direction]:
+    def get_possible_directions(self, pos: Position, piece: Piece) -> set[Direction]:
         """
-        Returns possible directions to move by the position on board.
+        Returns a set of possible directions for a piece to move based on its position on the board and allowed directions of piece.
         """
+        self.validate_position_on_board(pos)
+
         possible_direction = set(Direction)
 
         if pos.x == 0:
@@ -115,4 +116,4 @@ class Board:
         if pos.y == 7:
             possible_direction -= {Direction.DOWN, Direction.DOWN_LEFT, Direction.DOWN_RIGHT}
 
-        return possible_direction
+        return possible_direction & piece.ALLOWED_MOVE_DIRECTIONS

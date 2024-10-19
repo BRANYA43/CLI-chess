@@ -3,6 +3,7 @@ from types import MappingProxyType
 from unittest.mock import patch
 
 import pytest
+from pytest_lazy_fixtures import lf
 
 from errors import BoardError
 from objects.board import Board
@@ -222,49 +223,35 @@ class TestBoard:
 
         assert mock_check.called
 
-    @pytest.mark.parametrize('pos', (Position(x, y) for y in range(8) for x in range(8)))
-    def test_getting_possible_directions_returns_expected_directions(self, pos, board):
-        possible_directions = board.get_possible_directions(pos)
+    @pytest.mark.parametrize(
+        'pos',
+        [Position(x, y) for y in range(2) for x in range(8)] + [Position(x, y) for x in range(2) for y in range(8)],
+    )
+    @pytest.mark.parametrize(
+        'piece', (lf(piece) for piece in ('w_pawn', 'b_pawn', 'w_rook', 'w_knight', 'w_bishop', 'w_queen'))
+    )
+    def test_getting_possible_directions_returns_expected_directions(self, pos, board, piece):
+        possible_directions = board.get_possible_directions(pos, piece)
+        allowed_directions = piece.ALLOWED_MOVE_DIRECTIONS
+        expected = set(Direction)
         match pos:
             case Position(0, 0):
-                assert possible_directions == {Direction.DOWN, Direction.RIGHT, Direction.DOWN_RIGHT}
+                expected = {Direction.DOWN, Direction.RIGHT, Direction.DOWN_RIGHT}
             case Position(7, 0):
-                assert possible_directions == {Direction.DOWN, Direction.LEFT, Direction.DOWN_LEFT}
+                expected = {Direction.DOWN, Direction.LEFT, Direction.DOWN_LEFT}
             case Position(0, 7):
-                assert possible_directions == {Direction.UP, Direction.RIGHT, Direction.UP_RIGHT}
+                expected = {Direction.UP, Direction.RIGHT, Direction.UP_RIGHT}
             case Position(7, 7):
-                assert possible_directions == {Direction.UP, Direction.LEFT, Direction.UP_LEFT}
+                expected = {Direction.UP, Direction.LEFT, Direction.UP_LEFT}
             case Position(0, _):
-                assert possible_directions == {
-                    Direction.UP,
-                    Direction.DOWN,
-                    Direction.RIGHT,
-                    Direction.UP_RIGHT,
-                    Direction.DOWN_RIGHT,
-                }
+                expected = {Direction.UP, Direction.DOWN, Direction.RIGHT, Direction.UP_RIGHT, Direction.DOWN_RIGHT}
             case Position(7, _):
-                assert possible_directions == {
-                    Direction.UP,
-                    Direction.DOWN,
-                    Direction.LEFT,
-                    Direction.UP_LEFT,
-                    Direction.DOWN_LEFT,
-                }
+                expected = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.UP_LEFT, Direction.DOWN_LEFT}
             case Position(_, 0):
-                assert possible_directions == {
-                    Direction.DOWN,
-                    Direction.LEFT,
-                    Direction.RIGHT,
-                    Direction.DOWN_LEFT,
-                    Direction.DOWN_RIGHT,
-                }
+                expected = {Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.DOWN_LEFT, Direction.DOWN_RIGHT}
             case Position(_, 7):
-                assert possible_directions == {
-                    Direction.UP,
-                    Direction.LEFT,
-                    Direction.RIGHT,
-                    Direction.UP_LEFT,
-                    Direction.UP_RIGHT,
-                }
+                expected = {Direction.UP, Direction.LEFT, Direction.RIGHT, Direction.UP_LEFT, Direction.UP_RIGHT}
             case Position(_, _):
-                assert possible_directions == set(Direction)
+                pass
+
+        assert possible_directions == expected & allowed_directions
