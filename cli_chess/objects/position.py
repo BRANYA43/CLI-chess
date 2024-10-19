@@ -9,9 +9,9 @@ class Position:
 
     def __init__(self, x: int, y: int):
         if not isinstance(x, int) or not isinstance(y, int):
-            raise TypeError('x and y must be integer.')
+            raise TypeError(f'x and y must be integer, but got: x={type(x).__name__}, y={type(y).__name__}.')
         if x < 0 or y < 0:
-            raise ValueError('x and y must be greate than or equal to 0')
+            raise ValueError(f'Expected x >= 0 and y >= 0, but got x={x} < 0, y={y} < 0.')
         self._x = x
         self._y = y
 
@@ -24,49 +24,49 @@ class Position:
         return self._y
 
     def __str__(self):
-        return f'x:{self._x}, y:{self._y}'
+        return f'x:{self.x}, y:{self.y}'
 
     def __hash__(self):
         return hash(tuple(self))
 
     def __repr__(self):
-        return f'<Position(x:{self._x}, y:{self._y})>'
+        return f'<Position(x:{self.x}, y:{self.y})>'
 
     def __iter__(self):
-        return (i for i in (self._x, self._y))
+        return iter((self.x, self.y))
 
-    def __add__(self, other) -> 'Position':
-        if isinstance(other, Vector):
-            return Position(self._x + other.x, self._y + other.y)
-        raise TypeError(f'Expected Vector, but got {type(other).__name__}.')
+    def __add__(self, vector) -> 'Position':
+        if isinstance(vector, Vector):
+            return Position(self.x + vector.x, self.y + vector.y)
+        raise TypeError(f'Expected Vector, but got {type(vector).__name__}.')
 
-    def __sub__(self, other) -> Vector:
-        self.__valid_position(other)
-        return Vector(self._x - other.x, self._y - other.y)
+    def __sub__(self, position) -> Vector:
+        self.__valid_position(position)
+        return Vector(self.x - position.x, self.y - position.y)
 
-    def __eq__(self, other):
-        self.__valid_position(other)
-        return tuple(self) == tuple(other)
+    def __eq__(self, position):
+        self.__valid_position(position)
+        return tuple(self) == tuple(position)
 
-    def __ne__(self, other):
-        self.__valid_position(other)
-        return self._x != other.x or self._y != other.y
+    def __ne__(self, position):
+        self.__valid_position(position)
+        return self.x != position.x or self.y != position.y
 
-    def __gt__(self, other):
-        self.__valid_position(other)
-        return self._y > other.y or (self._y == other.y and self._x > other.x)
+    def __gt__(self, position):
+        self.__valid_position(position)
+        return self.y > position.y or (self.y == position.y and self.x > position.x)
 
-    def __ge__(self, other):
-        self.__valid_position(other)
-        return self > other or self == other
+    def __ge__(self, position):
+        self.__valid_position(position)
+        return self > position or self == position
 
-    def __lt__(self, other):
-        self.__valid_position(other)
-        return self._y < other.y or (self._y == other.y and self._x < other.x)
+    def __lt__(self, position):
+        self.__valid_position(position)
+        return self.y < position.y or (self.y == position.y and self.x < position.x)
 
-    def __le__(self, other):
-        self.__valid_position(other)
-        return self < other or self == other
+    def __le__(self, position):
+        self.__valid_position(position)
+        return self < position or self == position
 
     def get_direction(self, pos: 'Position') -> Direction:
         """

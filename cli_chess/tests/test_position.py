@@ -12,10 +12,17 @@ class TestPosition:
         assert pos.x == 1
         assert pos.y == 0
 
-    @pytest.mark.parametrize('x, y', [('1', 1), (1, '1')])
-    def test_creating_vector_raises_error_if_x_or_y_dont_have_int_type(self, x, y):
-        with pytest.raises(TypeError, match='x and y must be integer.'):
-            Vector(x, y)
+    @pytest.mark.parametrize('x, y', [(None, 1), (1, None)])
+    def test_creating_position_raises_error_if_x_or_y_dont_have_int_type(self, x, y):
+        with pytest.raises(
+            TypeError, match=rf'x and y must be integer, but got: x={type(x).__name__}, y={type(y).__name__}.'
+        ):
+            Position(x, y)
+
+    @pytest.mark.parametrize('x, y', [(-1, 0), (0, -1), (-1, -1)])
+    def test_creating_position_raises_error_if_x_or_y_are_less_than_0(self, x, y):
+        with pytest.raises(ValueError, match=rf'Expected x >= 0 and y >= 0, but got x={x} < 0, y={y} < 0.'):
+            Position(x, y)
 
     def test_position_is_hashed(self):
         assert hash(Position(20, 30)) == hash((20, 30))
