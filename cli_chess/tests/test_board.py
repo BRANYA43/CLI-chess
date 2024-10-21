@@ -16,6 +16,7 @@ class TestBoard:
         board = Board()
         assert board.pieces_by_color == {Color.WHITE: {}, Color.BLACK: {}}
         assert board.limit_pos == Position(7, 7)
+        assert board.moving_pieces_color == Color.WHITE
 
     def test_pieces_by_color_property_returns_mappingproxytype(self, board, w_piece, b_piece):
         assert isinstance(board.pieces_by_color, MappingProxyType)

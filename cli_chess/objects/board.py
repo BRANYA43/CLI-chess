@@ -11,8 +11,13 @@ from objects.position import Position
 
 class Board:
     def __init__(self):
+        self._moving_pieces_color = Color.WHITE
         self._limit_pos = Position(7, 7)
         self._pieces_by_color: dict[Color, dict[Position, Piece]] = {Color.WHITE: {}, Color.BLACK: {}}
+
+    @property
+    def moving_pieces_color(self) -> Color:
+        return self._moving_pieces_color
 
     @property
     def limit_pos(self) -> Position:
