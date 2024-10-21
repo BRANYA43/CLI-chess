@@ -32,6 +32,13 @@ class TestBoard:
         assert board.pieces.maps[Color.WHITE] == board._pieces_by_color[Color.WHITE]
         assert board.pieces.maps[Color.BLACK] == board._pieces_by_color[Color.BLACK]
 
+    def test_passing_move_to_other_pieces_of_different_color(self, board):
+        assert board.moving_pieces_color == Color.WHITE
+        board.pass_move()
+        assert board.moving_pieces_color == Color.BLACK
+        board.pass_move()
+        assert board.moving_pieces_color == Color.WHITE
+
     def test_having_piece_at_position(self, board, w_piece, b_piece):
         pos_has_w_piece = Position(0, 0)
         pos_has_b_piece = Position(1, 0)

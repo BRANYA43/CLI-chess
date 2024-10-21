@@ -42,6 +42,10 @@ class Board:
             self._pieces_by_color[Color.BLACK],
         )
 
+    def pass_move(self):
+        """Passes the move to chess pieces of opposite color."""
+        self._moving_pieces_color = self._moving_pieces_color.opposite_color
+
     def has_piece_at_position(self, pos: Position, color: Optional[Color] = None) -> bool:
         """
         Return True if Board has the chess piece at the positions.
