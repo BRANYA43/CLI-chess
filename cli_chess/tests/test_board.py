@@ -149,9 +149,8 @@ class TestBoard:
         assert board.get_piece(w_pos) is w_piece
         assert board.get_piece(b_pos) is b_piece
 
-    def test_getting_piece_raises_error_if_position_is_empty(self, board):
-        with pytest.raises(BoardError, match=r'Cannot get the chess piece, position x:0, y:0 is empty.'):
-            board.get_piece(Position(0, 0))
+    def test_getting_piece_returns_none(self, board):
+        assert board.get_piece(Position(0, 0)) is None
 
     def test_getting_piece_raises_error_if_position_out_range_of_board(self, board):
         with pytest.raises(BoardError, match=r'x and y cannot be greate then 7.'):

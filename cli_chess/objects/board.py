@@ -62,16 +62,12 @@ class Board:
             raise BoardError(f'Cannot remove the chess piece, there is a different chess piece at position {pos}.')
         del self._pieces_by_color[piece.color][pos]
 
-    def get_piece(self, pos: Position) -> Piece:
+    def get_piece(self, pos: Position) -> Optional[Piece]:
         """
         Returns the chess piece from the board at the position.
         """
         self.validate_position_on_board(pos)
-        if not self.has_piece_at_position(pos):
-            raise BoardError(f'Cannot get the chess piece, position {pos} is empty.')
-        got_piece = self._pieces_by_color[Color.WHITE].get(pos) or self._pieces_by_color[Color.BLACK].get(pos)
-        assert got_piece is not None  # clue for mypy
-        return got_piece
+        return self._pieces_by_color[Color.WHITE].get(pos) or self._pieces_by_color[Color.BLACK].get(pos)
 
     def move_piece(self, start: Position, end: Position):
         """
@@ -81,11 +77,9 @@ class Board:
             raise BoardError(f'Cannot move chess piece, start position {start} and end position {end} match.')
 
         moving_piece = self.get_piece(start)
+        assert moving_piece is not None  # clue for Mypy
 
-        if self.has_piece_at_position(end):
-            attacked_piece = self.get_piece(end)
-        else:
-            attacked_piece = None
+        attacked_piece = self.get_piece(end)
 
         moving_piece.check(start, end, self, attacked_piece)
 
