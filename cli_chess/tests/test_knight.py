@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from pytest import raises
 
-from errors import PieceError
+from errors import InvalidMovePathError, InvalidMoveDistanceError
 from objects.enums import Direction
 from objects.pieces import Piece, Knight
 from objects.position import Position
@@ -23,7 +23,7 @@ class TestKnight:
 
         for distance in (2, 4):
             assert w_knight.check_move_distance(distance) is False
-            with raises(PieceError, match=rf'Knight cannot move {distance} squares.'):
+            with raises(InvalidMoveDistanceError):
                 w_knight.check_move_distance(distance, raise_exception=True)
 
     @pytest.mark.parametrize('end', get_position_list([(1, 0), (3, 0), (0, 1), (4, 1), (0, 3), (4, 3), (1, 4), (3, 4)]))
@@ -71,7 +71,7 @@ class TestKnight:
         direction = start.get_direction(end)
         assert w_knight.check_get_to_end_position(start, end, board, _direction=direction) is False
 
-        with raises(PieceError, match=rf'Knight cannot get from start\({start}\) to end\({end}\) position.'):
+        with raises(InvalidMovePathError):
             w_knight.check_get_to_end_position(start, end, board, raise_exception=True, _direction=direction)
 
     @patch.object(Piece, 'check', return_value=True)

@@ -1,7 +1,7 @@
 import pytest
 from pytest_lazy_fixtures import lf
 
-from errors import PieceError
+from errors import InvalidMovePathError
 from objects.enums import Direction
 from objects.pieces import Piece, King
 from objects.position import Position
@@ -66,7 +66,7 @@ class TestKing:
         assert w_king.check_get_to_end_position(start, end, board) is False
 
         with pytest.raises(
-            PieceError, match=r'King cannot move to the end position that is on attack line of enemy chess piece.'
+            InvalidMovePathError, match=r'King cannot move to the end position that is under attack of enemy.'
         ):
             w_king.check_get_to_end_position(start, end, board, raise_exception=True)
 
@@ -88,7 +88,7 @@ class TestKing:
         assert w_king.check_get_to_end_position(start, end, board) is False
 
         with pytest.raises(
-            PieceError, match=r'King cannot move to the end position that is on attack line of enemy chess piece.'
+            InvalidMovePathError, match=r'King cannot move to the end position that is under attack of enemy.'
         ):
             w_king.check_get_to_end_position(start, end, board, raise_exception=True)
 
@@ -112,7 +112,7 @@ class TestKing:
         assert w_king.check_get_to_end_position(start, end, board) is False
 
         with pytest.raises(
-            PieceError, match=r'King cannot move to the end position that is on attack line of enemy chess piece.'
+            InvalidMovePathError, match=r'King cannot move to the end position that is under attack of enemy.'
         ):
             w_king.check_get_to_end_position(start, end, board, raise_exception=True)
 

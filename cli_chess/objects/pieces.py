@@ -1,7 +1,13 @@
 from collections import deque
 from typing import Optional, override
 
-from errors import PieceError
+from errors import (
+    AllyAttackError,
+    InvalidMoveDirectionError,
+    BlockedMoveError,
+    InvalidMovePathError,
+    InvalidMoveDistanceError,
+)
 from objects.enums import Color, Direction
 from objects.position import Position
 from functools import partial
@@ -76,7 +82,7 @@ class Piece:
         """
         if self.is_ally_for(attacked_piece):
             if raise_exception:
-                raise PieceError('Ally pieces cannot attacked each other.')
+                raise AllyAttackError
             return False
         return True
 
@@ -86,7 +92,7 @@ class Piece:
         """
         result = direction in self.ALLOWED_MOVE_DIRECTIONS
         if raise_exception and not result:
-            raise PieceError(f'{self.name} cannot move in the {direction} direction.')
+            raise InvalidMoveDirectionError(name=self.name, direction=direction)
         return result
 
     def check_get_to_end_position(
@@ -108,11 +114,11 @@ class Piece:
                         continue
 
                     if raise_exception:
-                        raise PieceError(f'{self.name} cannot move through another chess piece.')
+                        raise BlockedMoveError(name=self.name)
                     return False
         except ValueError:
             if raise_exception:
-                raise PieceError(f'{self.name} cannot get from start({start}) to end({end}) position.')
+                raise InvalidMovePathError(name=self.name, start=start, end=end)
             return False
 
         return True
@@ -123,7 +129,7 @@ class Piece:
         """
         result = 1 <= distance <= self.MAX_MOVE_COUNT
         if raise_exception and not result:
-            raise PieceError(f'{self.name} cannot move {distance} squares.')
+            raise InvalidMoveDistanceError(name=self.name, distance=distance, max_moves=self.MAX_MOVE_COUNT)
         return result
 
 
@@ -156,7 +162,7 @@ class Pawn(Piece):
             result = not is_attack and result
 
         if not result and raise_exception:
-            raise PieceError(f'{self.name} cannot move in the {direction} direction.')
+            raise InvalidMoveDirectionError(name=self.name, direction=direction)
         return result
 
     @override
@@ -196,7 +202,7 @@ class Knight(Piece):
     def check_move_distance(self, distance: int, *, raise_exception=False, **kwargs) -> bool:
         result = distance == self.MAX_MOVE_COUNT
         if raise_exception and not result:
-            raise PieceError(f'{self.name} cannot move {distance} squares.')
+            raise InvalidMoveDistanceError(name=self.name, distance=distance, max_moves=self.MAX_MOVE_COUNT)
         return result
 
     def check_get_to_end_position(
@@ -210,7 +216,7 @@ class Knight(Piece):
         result = end == l_expected_pos or end == r_expected_pos
 
         if raise_exception and not result:
-            raise PieceError(f'{self.name} cannot get from start({start}) to end({end}) position.')
+            raise InvalidMovePathError(name=self.name, start=start, end=end)
         return result
 
     def check(
@@ -254,9 +260,7 @@ class King(Piece):
                 continue
             elif piece.check(pos, end, board, self, raise_exception=False):
                 if raise_exception:
-                    raise PieceError(
-                        'King cannot move to the end position that is on attack line of enemy chess piece.'
-                    )
+                    raise InvalidMovePathError('King cannot move to the end position that is under attack of enemy.')
                 return False
 
         return True

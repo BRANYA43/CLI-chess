@@ -19,5 +19,25 @@ class PieceError(CustomError):
     pass
 
 
+class AllyAttackError(PieceError):
+    default_msg = 'Cannot attack an allied piece.'
+
+
+class InvalidMoveDirectionError(PieceError):
+    default_msg = '{name} cannot move in the {direction} direction.'
+
+
+class BlockedMoveError(PieceError):
+    default_msg = '{name} is blocked by another chess piece.'
+
+
+class InvalidMovePathError(PieceError):
+    default_msg = '{name} cannot move from {start} to {end} due to an invalid path'
+
+
+class InvalidMoveDistanceError(PieceError):
+    default_msg = '{name} cannot move {distance} squares. Maximum allowed distance is {max_moves} squares.'
+
+
 class BoardError(CustomError):
     pass

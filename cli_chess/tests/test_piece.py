@@ -2,7 +2,13 @@ from unittest.mock import patch
 
 import pytest
 
-from errors import PieceError
+from errors import (
+    AllyAttackError,
+    InvalidMoveDirectionError,
+    InvalidMoveDistanceError,
+    BlockedMoveError,
+    InvalidMovePathError,
+)
 from objects.enums import Color, Direction
 from objects.pieces import Piece
 from objects.position import Position
@@ -45,7 +51,7 @@ class TestPiece:
         assert w_piece.check_move_in_direction(direction) is False
 
     def test_check_move_in_direction_method_raises_error_if_raise_exception_is_true(self, w_piece):
-        with pytest.raises(PieceError, match=r'Piece cannot move in the UP direction.'):
+        with pytest.raises(InvalidMoveDirectionError):
             w_piece.check_move_in_direction(Direction.UP, raise_exception=True)
 
     @pytest.mark.parametrize('distance', range(1, 9))
@@ -59,7 +65,7 @@ class TestPiece:
         assert w_god_piece.check_move_distance(9) is False
 
     def test_check_move_distance_method_raises_error_if_raise_exception_is_true(self, w_piece):
-        with pytest.raises(PieceError, match=r'Piece cannot move 0 squares.'):
+        with pytest.raises(InvalidMoveDistanceError):
             w_piece.check_move_distance(0, raise_exception=True)
 
     def test_checking_attack_returns_true_if_piece_attack_no_ally_pieces(self, w_piece, b_piece):
@@ -67,7 +73,7 @@ class TestPiece:
 
     def test_checking_attack_returns_false_if_piece_attacks_ally_piece(self, w_piece):
         assert w_piece.check_attack(w_piece) is False
-        with pytest.raises(PieceError, match=r'Ally pieces cannot attacked each other.'):
+        with pytest.raises(AllyAttackError):
             w_piece.check_attack(w_piece, raise_exception=True)
 
     @pytest.mark.parametrize(
@@ -132,7 +138,7 @@ class TestPiece:
         board.add_piece(w_piece, blocking_piece_pos)
 
         assert w_god_piece.check_get_to_end_position(start, end, board) is False
-        with pytest.raises(PieceError, match=r'Piece cannot move through another chess piece.'):
+        with pytest.raises(BlockedMoveError):
             w_god_piece.check_get_to_end_position(start, end, board, raise_exception=True)
 
     def test_piece_cant_get_to_end_position_if_start_and_end_arent_on_the_same_straight_line(self, board, w_god_piece):
@@ -147,7 +153,7 @@ class TestPiece:
         start = Position(0, 0)
         end = Position(4, 1)
         assert w_god_piece.check_get_to_end_position(start, end, board) is False
-        with pytest.raises(PieceError, match=r'Piece cannot get from start\(x:0, y:0\) to end\(x:4, y:1\) position.'):
+        with pytest.raises(InvalidMovePathError):
             w_god_piece.check_get_to_end_position(start, end, board, raise_exception=True)
 
     def test_check_method_returns_true_without_attacked_piece(self, w_god_piece, board):
@@ -172,21 +178,21 @@ class TestPiece:
         board.add_piece(w_piece, Position(1, 1))
 
         # if attacked piece is the ally
-        with pytest.raises(PieceError, match=r'Ally pieces cannot attacked each other.'):
+        with pytest.raises(AllyAttackError):
             w_piece.check(start, end, board, w_piece)
 
         # if piece cannot move in the direction
-        with pytest.raises(PieceError, match=r'Piece cannot move in the DOWN RIGHT direction.'):
+        with pytest.raises(InvalidMoveDirectionError):
             w_piece.check(start, end, board)
         w_piece.ALLOWED_MOVE_DIRECTIONS = frozenset([Direction.DOWN_RIGHT])
 
         # if piece cannot move distance
-        with pytest.raises(PieceError, match=r'Piece cannot move 7 squares.'):
+        with pytest.raises(InvalidMoveDistanceError):
             w_piece.check(start, end, board)
         w_piece.MAX_MOVE_COUNT = 8
 
         # if piece cannot move through another piece
-        with pytest.raises(PieceError, match=r'Piece cannot move through another chess piece.'):
+        with pytest.raises(BlockedMoveError):
             w_piece.check(start, end, board)
 
     @pytest.mark.parametrize(
