@@ -123,3 +123,64 @@ class TestPawn:
         w_pawn.check(start, end, board)
 
         mock_parent_check.assert_called_with(start, end, board, None, raise_exception=True, is_attack=False)
+
+    def test_pawn_is_in_stalemate_if_cant_move_and_attack(self, w_pawn, b_pawn, board):
+        """
+           0   1   2   3   4
+        0 [P] [ ] [ ] [ ] [ ]
+        1 [p] [ ] [ ] [ ] [ ]
+        2 [ ] [ ] [ ] [ ] [ ]
+        3 [ ] [ ] [ ] [ ] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        w_pawn_pos = Position(0, 0)
+        b_pawn_pos = Position(0, 1)
+
+        board.add_piece(w_pawn, w_pawn_pos)
+        board.add_piece(b_pawn, b_pawn_pos)
+
+        assert w_pawn.is_in_stalemate(w_pawn_pos, board) is True
+        assert b_pawn.is_in_stalemate(b_pawn_pos, board) is True
+
+    def test_pawn_isnt_in_stalemate_if_it_isnt_blocked(self, w_pawn, b_pawn, board):
+        """
+           0   1   2   3   4
+        0 [ ] [P] [ ] [ ] [ ]
+        1 [p] [ ] [ ] [ ] [ ]
+        2 [ ] [ ] [ ] [ ] [ ]
+        3 [ ] [ ] [ ] [ ] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        w_pawn_pos = Position(1, 0)
+        b_pawn_pos = Position(0, 1)
+
+        board.add_piece(w_pawn, w_pawn_pos)
+        board.add_piece(b_pawn, b_pawn_pos)
+
+        assert w_pawn.is_in_stalemate(w_pawn_pos, board) is False
+        assert b_pawn.is_in_stalemate(b_pawn_pos, board) is False
+
+    def test_pawn_isnt_in_stalemate_if_can_attack(self, w_pawn, b_pawn, board):
+        """
+           0   1   2   3   4
+        0 [P] [P] [ ] [ ] [ ]
+        1 [p] [p] [ ] [ ] [ ]
+        2 [ ] [ ] [ ] [ ] [ ]
+        3 [ ] [ ] [ ] [ ] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+
+        w_pawn_pos_l = Position(0, 0)
+        w_pawn_pos_r = Position(1, 0)
+        b_pawn_pos_l = Position(0, 1)
+        b_pawn_pos_r = Position(1, 1)
+
+        board.add_piece(w_pawn, w_pawn_pos_l)
+        board.add_piece(w_pawn, w_pawn_pos_r)
+        board.add_piece(b_pawn, b_pawn_pos_l)
+        board.add_piece(b_pawn, b_pawn_pos_r)
+
+        assert w_pawn.is_in_stalemate(w_pawn_pos_l, board) is False
+        assert w_pawn.is_in_stalemate(w_pawn_pos_r, board) is False
+        assert b_pawn.is_in_stalemate(b_pawn_pos_l, board) is False
+        assert b_pawn.is_in_stalemate(b_pawn_pos_r, board) is False
