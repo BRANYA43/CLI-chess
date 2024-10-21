@@ -1,14 +1,18 @@
 from typing import Optional
+import re
 
 
 class CustomError(Exception):
     """Base class of all errors"""
 
-    default_msg = None
+    default_msg: str = ''
 
-    def __init__(self, msg: Optional[str] = None):
-        message = self.default_msg if msg is None else msg
-        super().__init__(message)
+    def __init__(self, msg: Optional[str] = None, **kwargs):
+        if msg is None:
+            msg = self.default_msg
+            if re.search(r'{\w+}', self.default_msg) is not None:
+                msg = msg.format(**kwargs)
+        super().__init__(msg)
 
 
 class PieceError(CustomError):
