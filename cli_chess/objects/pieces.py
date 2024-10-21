@@ -7,6 +7,7 @@ from errors import (
     BlockedMoveError,
     InvalidMovePathError,
     InvalidMoveDistanceError,
+    PieceError,
 )
 from objects.enums import Color, Direction
 from objects.position import Position
@@ -131,6 +132,39 @@ class Piece:
         if raise_exception and not result:
             raise InvalidMoveDistanceError(name=self.name, distance=distance, max_moves=self.MAX_MOVE_COUNT)
         return result
+
+    def is_in_stalemate(self, start: Position, board) -> bool:
+        """
+        Returns True, if piece is in stalemate, else False.
+        """
+        excluded_directions: set[Direction] = set()
+        possible_directions = board.get_possible_directions(start, self)
+        for _ in range(self.MAX_MOVE_COUNT):
+            if excluded_directions:
+                possible_directions -= excluded_directions
+                excluded_directions = set()
+
+            for direction in possible_directions:
+                try:
+                    next_pos = start + direction.vector
+                except ValueError:
+                    excluded_directions.add(direction)
+                    continue
+
+                if next_pos > board.limit_pos:
+                    excluded_directions.add(direction)
+                    continue
+
+                attacked_piece = board.get_piece(next_pos)
+
+                try:
+                    if self.check(start, next_pos, self, attacked_piece):
+                        return False
+                except BlockedMoveError:
+                    excluded_directions.add(direction)
+                except PieceError:
+                    pass
+        return True
 
 
 class Pawn(Piece):

@@ -236,3 +236,141 @@ class TestPiece:
         assert mock_direction.called is expected_calls['direction']
         assert mock_distance.called is expected_calls['distance']
         assert mock_get.called is expected_calls['get']
+
+    def test_piece_is_in_stalemate_if_it_is_blocked_in_middle(self, board, w_god_piece, w_piece):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [P] [P] [P] [ ]
+        2 [ ] [P] [G] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_god_piece, start)
+        blocking_positions = get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)])
+        for pos in blocking_positions:
+            board.add_piece(w_piece, pos)
+
+        assert w_god_piece.is_in_stalemate(start, board) is True
+
+    @pytest.mark.parametrize(
+        'start,blocking_coords',
+        [
+            (Position(0, 0), [(1, 0), (0, 1), (1, 1)]),
+            (Position(7, 0), [(6, 0), (6, 1), (7, 1)]),
+            (Position(0, 7), [(0, 6), (1, 6), (1, 7)]),
+            (Position(7, 7), [(6, 6), (7, 6), (6, 7)]),
+        ],
+    )
+    def test_piece_is_in_stalemate_when_it_is_blocked_in_corners(
+        self, w_god_piece, w_piece, board, start, blocking_coords
+    ):
+        """
+           0   1   .   6   7
+        0 [G] [P] [ ] [P] [G]
+        1 [P] [P] [ ] [P] [P]
+        . [ ] [ ] [ ] [ ] [ ]
+        6 [P] [P] [ ] [P] [P]
+        7 [G] [P] [ ] [P] [G]
+        """
+        board.add_piece(w_god_piece, start)
+        for pos in get_position_list(blocking_coords):
+            board.add_piece(w_piece, pos)
+
+        assert w_god_piece.is_in_stalemate(start, board) is True
+
+    @pytest.mark.parametrize(
+        'start,blocking_coords',
+        [
+            (Position(4, 0), [(3, 0), (5, 0), (3, 1), (4, 1), (5, 1)]),
+            (Position(0, 2), [(0, 1), (1, 1), (1, 2), (0, 3), (1, 3)]),
+            (Position(7, 4), [(6, 3), (7, 3), (6, 4), (6, 5), (7, 5)]),
+            (Position(3, 7), [(2, 6), (3, 6), (4, 6), (2, 7), (4, 7)]),
+        ],
+    )
+    def test_piece_is_in_stalemate_if_it_is_blocked_in_edges(self, w_god_piece, w_piece, board, start, blocking_coords):
+        """
+           0   1   2   3   4   5   6   7
+        0 [ ] [ ] [ ] [P] [G] [P] [ ] [ ]
+        1 [P] [P] [ ] [P] [P] [P] [ ] [ ]
+        2 [G] [P] [ ] [ ] [ ] [ ] [ ] [ ]
+        3 [P] [P] [ ] [ ] [ ] [ ] [P] [P]
+        4 [ ] [ ] [ ] [ ] [ ] [ ] [P] [G]
+        5 [ ] [ ] [ ] [ ] [ ] [ ] [P] [P]
+        6 [ ] [ ] [P] [P] [P] [ ] [ ] [ ]
+        7 [ ] [ ] [P] [G] [P] [ ] [ ] [ ]
+        """
+
+        board.add_piece(w_god_piece, start)
+        for pos in get_position_list(blocking_coords):
+            board.add_piece(w_piece, pos)
+
+        assert w_god_piece.is_in_stalemate(start, board) is True
+
+    @pytest.mark.parametrize(
+        'start', get_position_list([(0, 0), (5, 0), (7, 0), (0, 5), (5, 5), (7, 5), (0, 7), (5, 7), (7, 7)])
+    )
+    def test_piece_isnt_in_stalemate_if_it_isnt_blocked_in_corners_and_edges_and_middle(
+        self, w_god_piece, board, start
+    ):
+        """
+           0   .   5   .   7
+        0 [G] [ ] [G] [ ] [G]
+        . [ ] [ ] [ ] [ ] [ ]
+        5 [G] [ ] [G] [ ] [G]
+        . [ ] [ ] [ ] [ ] [ ]
+        7 [G] [ ] [G] [ ] [G]
+        """
+        board.add_piece(w_god_piece, start)
+
+        assert w_god_piece.is_in_stalemate(start, board) is False
+
+    @pytest.mark.parametrize(
+        'possible_pos', get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)])
+    )
+    def test_piece_isnt_in_stalemate_if_there_is_at_least_one_not_blocked_position(
+        self, w_god_piece, w_piece, board, possible_pos
+    ):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [P] [ ] [P] [ ]
+        2 [ ] [P] [G] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_god_piece, start)
+        blocking_positions = get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)])
+        for pos in blocking_positions:
+            board.add_piece(w_piece, pos)
+
+        board.remove_piece(w_piece, possible_pos)
+
+        assert w_god_piece.is_in_stalemate(start, board) is False
+
+    @pytest.mark.parametrize(
+        'possible_pos', get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)])
+    )
+    def test_piece_isnt_in_stalemate_if_there_is_piece_that_can_be_attacked(
+        self, w_god_piece, w_piece, b_piece, board, possible_pos
+    ):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [P] [p] [P] [ ]
+        2 [ ] [P] [G] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_god_piece, start)
+        blocking_positions = get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)])
+        for pos in blocking_positions:
+            board.add_piece(w_piece, pos)
+
+        board.remove_piece(w_piece, possible_pos)
+        board.add_piece(b_piece, possible_pos)
+
+        assert w_god_piece.is_in_stalemate(start, board) is False
