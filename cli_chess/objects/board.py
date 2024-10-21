@@ -15,6 +15,10 @@ class Board:
         self._pieces_by_color: dict[Color, dict[Position, Piece]] = {Color.WHITE: {}, Color.BLACK: {}}
 
     @property
+    def limit_pos(self) -> Position:
+        return self._limit_pos
+
+    @property
     def pieces_by_color(self) -> MappingProxyType[Color, MappingProxyType[Position, Piece]]:
         return self.__get_pieces_by_color()
 
