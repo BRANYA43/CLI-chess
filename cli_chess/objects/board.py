@@ -124,3 +124,12 @@ class Board:
             possible_direction -= {Direction.DOWN, Direction.DOWN_LEFT, Direction.DOWN_RIGHT}
 
         return possible_direction & piece.ALLOWED_MOVE_DIRECTIONS
+
+    def check_stalemate(self):
+        """
+        Returns True, if white or black chess pieces cannot move and no king is in checkmate.
+        """
+        for start, piece in self._pieces_by_color[self._moving_pieces_color].items():
+            if not piece.is_in_stalemate(start, self):
+                return False
+        return True

@@ -262,3 +262,19 @@ class TestBoard:
                 pass
 
         assert possible_directions == expected & allowed_directions
+
+    def test_white_pieces_is_in_stalemate_and_black_not(self, w_piece, b_queen, board):
+        """
+           0   1   2
+        0 [P] [ ] [ ]
+        1 [q] [ ] [ ]
+        2 [ ] [ ] [ ]
+        """
+        board.add_piece(w_piece, Position(0, 0))
+        board.add_piece(b_queen, Position(0, 1))
+
+        assert board.moving_pieces_color == Color.WHITE
+        assert board.check_stalemate() is True
+        board.pass_move()
+        assert board.moving_pieces_color == Color.BLACK
+        assert board.check_stalemate() is False
