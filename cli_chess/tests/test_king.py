@@ -349,3 +349,82 @@ class TestKing:
             board.add_piece(b_queen, Position(*coords))
 
         assert w_king.is_in_checkmate(king_pos, check_pos, b_bishop, board) is False
+
+    def test_king_is_in_stalemate_if_it_is_blocked(self, w_king, w_pawn, board):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [P] [P] [P] [ ]
+        2 [ ] [P] [K] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_king, start)
+        for pos in get_position_list([(1, 1), (2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]):
+            board.add_piece(w_pawn, pos)
+
+        assert w_king.is_in_stalemate(start, board) is True
+
+    def test_king_is_in_stalemate_if_it_cant_move_and_be_safe_there(self, w_king, b_rook, board):
+        """
+           0   1   2   3   4
+        0 [ ] [r] [ ] [r] [ ]
+        1 [r] [ ] [ ] [ ] [ ]
+        2 [ ] [ ] [K] [ ] [ ]
+        3 [r] [ ] [ ] [ ] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_king, start)
+        for pos in get_position_list([(1, 0), (3, 0), (0, 1), (0, 3)]):
+            board.add_piece(b_rook, pos)
+
+        assert w_king.is_in_stalemate(start, board) is True
+
+    def test_king_isnt_stalemate_if_it_isnt_blocked(self, w_king, board):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [ ] [ ] [ ] [ ]
+        2 [ ] [ ] [K] [ ] [ ]
+        3 [ ] [ ] [ ] [ ] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_king, start)
+
+        assert w_king.is_in_stalemate(start, board) is False
+
+    def test_king_isnt_stalemate_if_there_is_positions_being_not_blocked(self, w_king, w_pawn, board):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [ ] [P] [P] [ ]
+        2 [ ] [P] [K] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_king, start)
+        for pos in get_position_list([(2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]):
+            board.add_piece(w_pawn, pos)
+
+        assert w_king.is_in_stalemate(start, board) is False
+
+    def test_king_isnt_stalemate_if_it_can_attack(self, w_king, w_pawn, b_pawn, board):
+        """
+           0   1   2   3   4
+        0 [ ] [ ] [ ] [ ] [ ]
+        1 [ ] [p] [P] [P] [ ]
+        2 [ ] [P] [K] [P] [ ]
+        3 [ ] [P] [P] [P] [ ]
+        4 [ ] [ ] [ ] [ ] [ ]
+        """
+        start = Position(2, 2)
+        board.add_piece(w_king, start)
+        board.add_piece(b_pawn, Position(1, 1))
+        for pos in get_position_list([(2, 1), (3, 1), (1, 2), (3, 2), (1, 3), (2, 3), (3, 3)]):
+            board.add_piece(w_pawn, pos)
+
+        assert w_king.is_in_stalemate(start, board) is False
