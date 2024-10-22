@@ -268,6 +268,36 @@ class Knight(Piece):
 
         return super().check(start, end, board, attacked_piece, raise_exception=raise_exception, **kwargs)
 
+    def is_in_stalemate(self, start: Position, board) -> bool:
+        possible_directions = board.get_possible_directions(start, self)
+        possible_positions = self._get_possible_positions(start, possible_directions)
+
+        for end in possible_positions:
+            if board.has_piece_at_position(end):
+                attacked_piece = board.get_piece(end)
+            else:
+                attacked_piece = None
+
+            if self.check(start, end, board, attacked_piece, raise_exception=False):
+                return False
+        return True
+
+    @staticmethod
+    def _get_possible_positions(start: Position, possible_directions: set[Direction]):
+        possible_positions = []
+        for direction in possible_directions:
+            vector = direction.vector
+            l_vector = Vector(vector.x * 2, vector.y)
+            r_vector = Vector(vector.x, vector.y * 2)
+            for vector_ in (l_vector, r_vector):
+                try:
+                    possible_pos = start + vector_
+                except ValueError:
+                    pass
+                else:
+                    possible_positions.append(possible_pos)
+        return possible_positions
+
 
 class Bishop(Piece):
     ALLOWED_MOVE_DIRECTIONS: frozenset[Direction] = frozenset(Direction.get_diagonal_directions())
