@@ -158,7 +158,7 @@ class Piece:
                 attacked_piece = board.get_piece(next_pos)
 
                 try:
-                    if self.check(start, next_pos, self, attacked_piece):
+                    if self.check(start, next_pos, board, attacked_piece):
                         return False
                 except BlockedMoveError:
                     excluded_directions.add(direction)
