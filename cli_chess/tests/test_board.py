@@ -220,6 +220,17 @@ class TestBoard:
         ):
             board.move_piece(pos, pos)
 
+    def test_moving_piece_raises_error_if_there_isnt_piece_at_start_position(self, board):
+        with pytest.raises(BoardError, match=r"There isn't chess pieces at the start position."):
+            board.move_piece(Position(0, 0), Position(1, 0))
+
+    def test_moving_piece_raises_error_if_piece_at_start_position_moves_out_of_turn(self, b_god_piece, board):
+        pos = Position(0, 0)
+        board.add_piece(b_god_piece, pos)
+        assert board.moving_pieces_color == Color.WHITE
+        with pytest.raises(BoardError, match=r'Now WHITE chess pieces have to move.'):
+            board.move_piece(Position(0, 0), Position(1, 0))
+
     def test_moving_piece_calls_check_method_of_piece(self, board, w_god_piece):
         start = Position(0, 0)
         end = Position(0, 1)

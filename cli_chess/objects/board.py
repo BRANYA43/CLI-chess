@@ -1,7 +1,7 @@
 from collections import ChainMap
 from functools import lru_cache
 from types import MappingProxyType
-from typing import Optional
+from typing import Optional, cast
 
 from errors import BoardError
 from objects.enums import Color, Direction
@@ -89,11 +89,15 @@ class Board:
         if start == end:
             raise BoardError(f'Cannot move chess piece, start position {start} and end position {end} match.')
 
-        moving_piece = self.get_piece(start)
-        assert moving_piece is not None  # clue for Mypy
+        if not self.has_piece_at_position(start):
+            raise BoardError("There isn't chess pieces at the start position.")
+
+        moving_piece = cast(Piece, self.get_piece(start))
+
+        if moving_piece.color != self._moving_pieces_color:
+            raise BoardError(f'Now {self._moving_pieces_color} chess pieces have to move.')
 
         attacked_piece = self.get_piece(end)
-
         moving_piece.check(start, end, self, attacked_piece)
 
         if attacked_piece is not None:
